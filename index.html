@@ -62,7 +62,7 @@
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
 
   main{flex:1; padding:4px 16px 110px}
-  body.resting main{padding-bottom:190px}
+  body.resting main{padding-bottom:210px}
 
   /* modal */
   .modal{position:fixed; inset:0; z-index:60; display:flex; align-items:flex-end; justify-content:center; background:rgba(3,12,26,.6); backdrop-filter:blur(3px)}
@@ -263,8 +263,8 @@
     max-width:540px; margin:0 auto;
   }
   .tab{flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 0; color:var(--faint)}
-  .tab .ti{font-size:21px; line-height:1}
-  .tab .tl{font-family:var(--display); text-transform:uppercase; letter-spacing:1.5px; font-size:10px; font-weight:600}
+  .tab .ti{font-size:20px; line-height:1}
+  .tab .tl{font-family:var(--display); text-transform:uppercase; letter-spacing:1px; font-size:9.5px; font-weight:600}
   .tab.on{color:var(--text)}
   .tab.on .ti{color:var(--accent)}
 
@@ -278,19 +278,22 @@
   .restbar{
     position:fixed; left:50%; transform:translateX(-50%);
     bottom:calc(74px + var(--safe-b)); z-index:45;
-    width:calc(100% - 28px); max-width:512px;
-    display:flex; align-items:center; gap:10px;
-    background:var(--panel2); border:1px solid var(--line); border-radius:14px;
-    padding:9px 10px; box-shadow:0 10px 30px rgba(0,0,0,.45);
+    width:calc(100% - 24px); max-width:540px;
+    display:flex; align-items:center; gap:9px;
+    background:var(--panel2); border:1px solid var(--line); border-radius:16px;
+    padding:13px 12px; box-shadow:0 12px 34px rgba(0,0,0,.5);
   }
   .restbar.done{border-color:var(--ok); background:rgba(59,156,90,.16)}
   .restbar[hidden]{display:none}
   .restbar .rb-mid{flex:1; text-align:center}
-  .restbar .rb-time{font-family:var(--mono); font-weight:700; font-size:22px; line-height:1}
-  .restbar .rb-label{font-size:11px; color:var(--muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-  .restbar .rb-adj{font-family:var(--mono); font-weight:700; font-size:14px; color:var(--text); background:var(--panel); border:1px solid var(--line); border-radius:9px; padding:10px 12px}
-  .restbar .rb-skip{font-family:var(--display); text-transform:uppercase; letter-spacing:1px; font-size:12px; font-weight:600; color:#fff; background:var(--accent); border-radius:9px; padding:11px 14px}
+  .restbar .rb-time{font-family:var(--mono); font-weight:700; font-size:40px; line-height:1}
+  .restbar .rb-label{font-size:13px; color:var(--muted); margin-top:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .restbar .rb-adj{font-family:var(--mono); font-weight:700; font-size:16px; color:var(--text); background:var(--panel); border:1px solid var(--line); border-radius:11px; padding:14px 13px}
+  .restbar .rb-skip{font-family:var(--display); text-transform:uppercase; letter-spacing:1px; font-size:13px; font-weight:600; color:#fff; background:var(--accent); border-radius:11px; padding:15px 15px}
   .restbar.done .rb-skip{background:var(--ok)}
+  .restbar .rb-time{white-space:nowrap}
+  .restbar.done .rb-adj{display:none}
+  .restbar.done .rb-time{font-size:30px; letter-spacing:.5px}
 
   /* rest guide */
   .restguide{margin-top:10px; display:flex; flex-direction:column; gap:2px}
@@ -308,7 +311,7 @@
   .daycell{display:flex; flex-direction:column; align-items:center; gap:5px; padding:0; background:none; border:none; min-width:0; overflow:hidden}
   .wkgrid > *{min-width:0}
   .daybars{width:100%; height:70px; display:flex; align-items:flex-end; background:var(--panel); border:1px solid var(--line); border-radius:9px; overflow:hidden}
-  .dayfill{width:100%; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:2px; padding-top:6px; background:linear-gradient(180deg,var(--accent),#6f1b26); border-radius:8px 8px 0 0}
+  .dayfill{width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; background:linear-gradient(180deg,var(--accent),#6f1b26); border-radius:8px}
   .dayfill.empty{background:transparent}
   .dayfill.empty.add{display:flex; align-items:center; justify-content:center; height:100%; color:var(--faint); font-size:20px; font-weight:300}
   .daycell[data-addday] .daybars{border-style:dashed}
@@ -323,6 +326,16 @@
   .cal-btns{display:flex; gap:8px}
   @keyframes wkIn{from{opacity:0; transform:translateY(-10px)} to{opacity:1; transform:none}}
   .calweeks.anim .wk.in{animation:wkIn .38s ease both}
+
+  /* per-exercise progress charts */
+  .chart{display:flex; align-items:flex-end; gap:7px; padding:8px 2px 0; overflow-x:auto}
+  .cbar-col{flex:1 0 40px; display:flex; flex-direction:column; align-items:center; gap:5px}
+  .cbar-val{font-family:var(--mono); font-weight:700; font-size:13px; color:var(--text)}
+  .cbar-track{width:100%; height:130px; display:flex; align-items:flex-end; background:var(--panel2); border-radius:8px; overflow:hidden}
+  .cbar-fill{width:100%; background:linear-gradient(180deg,var(--accent),#6f1b26); border-radius:8px 8px 0 0}
+  .cbar-reps{font-family:var(--mono); font-size:11px; color:var(--muted)}
+  .cbar-date{font-family:var(--mono); font-size:10px; color:var(--faint)}
+  .chart-note{font-size:11px; color:var(--faint); margin-top:12px; text-align:center}
 </style>
 </head>
 <body style="background:#0A346B;color:#EEF4FC;margin:0;min-height:100%;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif">
@@ -335,6 +348,7 @@
   <nav class="tabbar">
     <button class="tab on" data-tab="today"><span class="ti">⊕</span><span class="tl">Today</span></button>
     <button class="tab" data-tab="plan"><span class="ti">≣</span><span class="tl">Plan</span></button>
+    <button class="tab" data-tab="history"><span class="ti">▦</span><span class="tl">History</span></button>
     <button class="tab" data-tab="progress"><span class="ti">▲</span><span class="tl">Progress</span></button>
   </nav>
   <div id="restbar" class="restbar" hidden>
@@ -547,7 +561,7 @@ const DAYS = {
   ]},
   d3:{ label:'Legs', abbr:'LEG', type:'lift', warmup:'legs', cooldown:COOLDOWN, exercises:[
     {name:'Goblet Squat (core primer)', sets:3, reps:'10', group:'Primary · squat & hinge'},
-    {name:'Box / Hack Squat (pain-free depth)', sets:5, reps:'6–10', bar:true, group:'Primary · squat & hinge'},
+    {name:'Box Squat (dumbbell, pain-free depth)', sets:5, reps:'6–10', group:'Primary · squat & hinge', swap:{name:'Hack Squat (barbell, pain-free depth)', bar:true}},
     {name:'Romanian Deadlift', sets:4, reps:'8–10', bar:true, group:'Primary · squat & hinge'},
     {name:'Reverse Lunge / Step-Up', sets:3, reps:'12 / side', group:'Quads & hamstrings'},
     {name:'Leg Press (comfortable range)', sets:4, reps:'12', group:'Quads & hamstrings'},
@@ -652,7 +666,8 @@ const state = {
   paused:false,      // workout clock paused
   editing:false,     // editing a saved session
   audio:null,        // WebAudio context for the bell
-  openDay:null,      // which calendar day is expanded in Progress
+  openDay:null,      // which calendar day is expanded in History
+  openChart:null,    // which exercise chart is expanded in Progress
   _addingNew:false,  // backfilling a past workout
   _stash:null,       // in-progress session stashed while editing
   weeksShown:4,      // calendar weeks visible
@@ -805,9 +820,11 @@ function startTimer(){
     // rest countdown — runs on any tab, independent of the workout clock
     if(state.rest){
       state.rest.remaining -= 1;
-      if(state.rest.remaining===0){ playBell(); if(navigator.vibrate){ try{ navigator.vibrate(250); }catch(e){} } }
+      const r=state.rest.remaining;
+      if(r>=1 && r<=5){ playBeep(); }
+      else if(r===0){ playBell(); if(navigator.vibrate){ try{ navigator.vibrate([120,60,120]); }catch(e){} } }
       updateRestBar();
-      if(state.rest.remaining <= -3){ state.rest=null; hideRestBar(); }
+      if(r <= -3){ state.rest=null; hideRestBar(); }
     }
   },1000);
 }
@@ -837,18 +854,30 @@ function ensureAudio(){
     if(state.audio && state.audio.state==='suspended') state.audio.resume();
   }catch(e){}
 }
-function playBell(){
+function playBeep(){   // short countdown tick (5..1)
+  try{
+    const ac=state.audio; if(!ac) return;
+    const t=ac.currentTime;
+    const o=ac.createOscillator(), g=ac.createGain();
+    o.type='sine'; o.frequency.value=760; o.connect(g); g.connect(ac.destination);
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(0.3,t+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+0.14);
+    o.start(t); o.stop(t+0.16);
+  }catch(e){}
+}
+function playBell(){   // longer "time's up" tone at zero
   try{
     const ac=state.audio; if(!ac) return;
     const t0=ac.currentTime;
     [880, 1320].forEach((f,i)=>{
       const o=ac.createOscillator(), g=ac.createGain();
       o.type='sine'; o.frequency.value=f; o.connect(g); g.connect(ac.destination);
-      const t=t0+i*0.16;
+      const t=t0+i*0.14;
       g.gain.setValueAtTime(0.0001,t);
-      g.gain.exponentialRampToValueAtTime(0.35,t+0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001,t+0.6);
-      o.start(t); o.stop(t+0.65);
+      g.gain.exponentialRampToValueAtTime(0.4,t+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+0.9);
+      o.start(t); o.stop(t+0.95);
     });
   }catch(e){}
 }
@@ -860,8 +889,8 @@ function updateRestBar(){
   const b=document.getElementById('restbar'), t=document.getElementById('rbtime'), l=document.getElementById('rblabel');
   if(!b||!t||!state.rest) return;
   const r=state.rest.remaining;
-  t.textContent = r>0 ? fmtClock(r) : 'Done';
-  if(l) l.textContent = r>0 ? ('Rest · '+state.rest.label) : 'Back to it';
+  t.textContent = r>0 ? fmtClock(r) : "Let's Go!";
+  if(l) l.textContent = r>0 ? ('Rest · '+state.rest.label) : '';
   b.classList.toggle('done', r<=0);
 }
 function startRest(seconds, label){
@@ -926,7 +955,8 @@ function render(){
   }
   if(state.tab==='today') renderToday();
   else if(state.tab==='plan') renderPlan();
-  else renderProgress();
+  else if(state.tab==='history') renderHistory();
+  else renderCharts();
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on', t.getAttribute('data-tab')===state.tab));
 }
 
@@ -1228,7 +1258,65 @@ function sessionDetailBody(s){
       '</div></div>';
 }
 
-function renderProgress(){
+/* ===== PROGRESS (per-exercise charts) ===== */
+function renderCharts(){
+  const v=$('#view');
+  const list=state.sessions.slice();
+  const sow=startOfWeek(new Date());
+  const winStart=new Date(sow); winStart.setDate(winStart.getDate()-3*7);   // this week + 3 prior = 4 weeks
+  const winStartY=ymd(winStart);
+  const byEx={};
+  list.forEach(s=>{
+    if(s.date < winStartY) return;
+    (s.exercises||[]).forEach(ex=>{
+      if(ex.load==='bw') return;                       // weighted lifts only
+      const done=ex.sets.filter(st=>st.done && (Number(st.weight)||0)>0);
+      if(!done.length) return;
+      const topW=Math.max.apply(null, done.map(st=>Number(st.weight)||0));
+      const reps=done.filter(st=>(Number(st.weight)||0)===topW).map(st=>Number(st.reps)||0);
+      (byEx[ex.name]=byEx[ex.name]||[]).push({date:s.date, topW, reps});
+    });
+  });
+  const names=Object.keys(byEx);
+  names.sort((a,b)=> byEx[b][byEx[b].length-1].date.localeCompare(byEx[a][byEx[a].length-1].date));
+  let html='<div style="margin-top:6px"><span class="eyebrow">Progress</span><div class="h-big">Exercise trends</div>'+
+    '<div class="muted" style="margin-top:6px;font-size:14px">Top working weight per session over the last 4 weeks. Tap an exercise for its chart.</div></div>';
+  if(!names.length){
+    html+='<div class="empty"><div class="ic">▲</div>Log some weighted sets and your per-exercise progress charts show up here.</div>';
+    v.innerHTML=html; return;
+  }
+  html+='<div style="margin-top:14px">';
+  names.forEach(name=>{
+    const pts=byEx[name].slice().sort((a,b)=>a.date.localeCompare(b.date));
+    const open=state.openChart===name;
+    const latest=pts[pts.length-1];
+    html+='<div class="ex panel'+(open?' open':'')+'" data-chart="'+esc(name)+'">'+
+      '<div class="ex-head" data-charttoggle>'+
+        '<div><div class="ex-name">'+esc(name)+'</div><div class="ex-target">latest '+latest.topW+' '+state.unit+' · '+pts.length+' session'+(pts.length>1?'s':'')+'</div></div>'+
+        '<span class="chev">▶</span>'+
+      '</div>';
+    if(open){
+      const ws=pts.map(p=>p.topW); const maxW=Math.max.apply(null,ws), minW=Math.min.apply(null,ws); const range=maxW-minW;
+      html+='<div class="ex-body" style="display:block"><div class="chart">';
+      pts.forEach(p=>{
+        const h = range>0 ? Math.round(38+62*((p.topW-minW)/range)) : 72;
+        const reps=p.reps.every(r=>r===p.reps[0]) ? (p.reps.length+'×'+p.reps[0]) : p.reps.join('/');
+        html+='<div class="cbar-col">'+
+          '<div class="cbar-val">'+p.topW+'</div>'+
+          '<div class="cbar-track"><div class="cbar-fill" style="height:'+h+'%"></div></div>'+
+          '<div class="cbar-reps">'+esc(reps)+'</div>'+
+          '<div class="cbar-date">'+mmdd(new Date(p.date+'T12:00:00'))+'</div>'+
+        '</div>';
+      });
+      html+='</div><div class="chart-note">bar height = trend within this window · number = top weight (lb) · below: sets×reps</div></div>';
+    }
+    html+='</div>';
+  });
+  html+='</div>';
+  v.innerHTML=html;
+}
+
+function renderHistory(){
   const v=$('#view');
   const list=state.sessions.slice();
   const empty=!list.length;
@@ -1240,13 +1328,9 @@ function renderProgress(){
   // map date -> session (highest-volume if more than one)
   const byDate={};
   list.forEach(s=>{ const k=s.date; if(!byDate[k] || sessionVolume(s)>sessionVolume(byDate[k])) byDate[k]=s; });
-  // max single-day volume across the 5 shown weeks for bar scaling
   const WEEKS=state.weeksShown, DL=['M','T','W','T','F','S','S']; const todayY=ymd(new Date());
-  let maxDay=1;
-  for(let wi=0; wi<WEEKS; wi++){ const ws=new Date(sow); ws.setDate(ws.getDate()-wi*7);
-    for(let d=0; d<7; d++){ const dd=new Date(ws); dd.setDate(dd.getDate()+d); const s=byDate[ymd(dd)]; if(s) maxDay=Math.max(maxDay, sessionVolume(s)); } }
 
-  let html='<div style="margin-top:6px"><span class="eyebrow">Progress</span><div class="h-big">'+(empty?'Start or add a workout':'The work adds up')+'</div>'+
+  let html='<div style="margin-top:6px"><span class="eyebrow">History</span><div class="h-big">'+(empty?'Start or add a workout':'The work adds up')+'</div>'+
     (empty?'<div class="muted" style="margin-top:6px;font-size:14px">Log a session from the Today tab, or tap any past day below to add a workout you already did.</div>':'')+'</div>';
   html+='<div class="stats">'+
     '<div class="panel stat"><div class="num accent">'+list.length+'</div><div class="lbl">Total sessions</div></div>'+
@@ -1287,12 +1371,10 @@ function renderProgress(){
       const s=byDate[key];
       if(s){
         const g=dayGlyph(s.dayKey);
-        const vol=sessionVolume(s);
-        const hpct=Math.round(46 + 54*(vol/maxDay));
         const on = state.openDay===key;
         if(on) openHere=s;
         html+='<button class="daycell'+(on?' on':'')+'" data-day="'+key+'">'+
-          '<div class="daybars"><div class="dayfill" style="height:'+hpct+'%">'+
+          '<div class="daybars"><div class="dayfill">'+
             '<span class="dayglyph">'+g.e+'</span><span class="dayabbr">'+esc(g.a)+'</span>'+
           '</div></div><span class="dayletter">'+DL[d]+'</span></button>';
       } else {
@@ -1321,7 +1403,7 @@ async function finishSession(){
     const i=state.sessions.findIndex(x=>x.id===s.id); if(i>=0) state.sessions[i]=s; else state.sessions.push(s);
     state.session = state._stash || null; state._stash=null; state.editing=false; state._addingNew=false;
     state.paused=false; state.rest=null; hideRestBar();
-    state.openDay=s.date; state.tab='progress'; render(); return;
+    state.openDay=s.date; state.tab='history'; render(); return;
   }
   s.totalDur=Math.round(sessionElapsed());
   (s.cardio||[]).forEach(c=>{ if(c.running){ c.dur+=(Date.now()-c.runStart)/1000; c.running=false; } c.dur=Math.round(c.dur); });
@@ -1331,7 +1413,7 @@ async function finishSession(){
   state.sessions.push(s);
   state.session=null; state.pickedDay=null; state.paused=false;
   state.rest=null; hideRestBar();
-  state.tab='progress'; render();
+  state.tab='history'; render();
 }
 async function discardSession(){
   if(state.editing){
@@ -1341,7 +1423,7 @@ async function discardSession(){
     }
     state.session = state._stash || null; state._stash=null; state.editing=false; state._addingNew=false;
     state.paused=false; state.rest=null; hideRestBar();
-    state.tab='progress'; render(); return;
+    state.tab='history'; render(); return;
   }
   await Store.del('current-session');
   state.session=null; state.paused=false; state.rest=null; hideRestBar();
@@ -1373,7 +1455,10 @@ document.addEventListener('click', async (e)=>{
   if(editBtn){ editSession(+editBtn.getAttribute('data-edit')); return; }
 
   const dayCell=e.target.closest('[data-day]');
-  if(dayCell){ const k=dayCell.getAttribute('data-day'); state.openDay = (state.openDay===k ? null : k); renderProgress(); return; }
+  if(dayCell){ const k=dayCell.getAttribute('data-day'); state.openDay = (state.openDay===k ? null : k); renderHistory(); return; }
+
+  const chartTog=e.target.closest('[data-charttoggle]');
+  if(chartTog){ const name=chartTog.closest('[data-chart]').getAttribute('data-chart'); state.openChart = (state.openChart===name ? null : name); renderCharts(); return; }
 
   const swapBtn=e.target.closest('[data-swap]');
   if(swapBtn && state.session){
@@ -1453,16 +1538,16 @@ document.addEventListener('click', async (e)=>{
       await Store.del('session:'+id);
       state.sessions=state.sessions.filter(s=>s.id!==id);
       if(state.openDay){ /* keep */ }
-      renderProgress();
+      renderHistory();
     } return; }
 
   const addDay=e.target.closest('[data-addday]');
   if(addDay){ await addWorkoutOn(addDay.getAttribute('data-addday')); return; }
 
   const earlier=e.target.closest('[data-earlier]');
-  if(earlier){ state.weeksShown+=4; state._calAnim=true; renderProgress(); return; }
+  if(earlier){ state.weeksShown+=4; state._calAnim=true; renderHistory(); return; }
   const collapse=e.target.closest('[data-collapse]');
-  if(collapse){ state.weeksShown=4; state._calAnim=true; renderProgress(); const w=document.querySelector('.calweeks'); if(w) w.scrollIntoView({behavior:'smooth', block:'nearest'}); return; }
+  if(collapse){ state.weeksShown=4; state._calAnim=true; renderHistory(); const w=document.querySelector('.calweeks'); if(w) w.scrollIntoView({behavior:'smooth', block:'nearest'}); return; }
 });
 
 /* ---------- Boot ---------- */
