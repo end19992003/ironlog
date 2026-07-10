@@ -83,7 +83,8 @@
   .panel{background:var(--panel); border:1px solid var(--line); border-radius:14px}
   .muted{color:var(--muted)}
   .row{display:flex; align-items:center}
-  .spread{justify-content:space-between}
+  .spread{justify-content:space-between; gap:12px}
+  .row.spread > :first-child{min-width:0}
 
   button{font-family:var(--body); cursor:pointer; border:none; background:none; color:inherit}
   .btn{
@@ -159,6 +160,16 @@
   .ex.skipped .ex-name{text-decoration:line-through; color:var(--muted)}
   .ex.skipped .pill{opacity:.5}
   .ex.skipped .skipbtn{background:var(--panel); color:var(--muted); border:1px solid var(--line)}
+  .deload-banner{margin-top:14px; padding:16px; border:1px solid var(--accent); background:rgba(226,58,75,.10)}
+  .deload-banner.active{border-color:var(--ok); background:rgba(59,156,90,.12)}
+  .deload-banner .db-title{font-family:var(--display); font-weight:700; font-size:16px}
+  .deload-banner .db-sub{color:var(--muted); font-size:13px; margin-top:5px; line-height:1.45}
+  .deload-banner .db-row{display:flex; gap:10px; margin-top:13px}
+  .deload-banner .db-btn{font-family:var(--display); text-transform:uppercase; letter-spacing:.5px; font-size:12px; font-weight:600; color:#fff; background:var(--accent); border-radius:10px; padding:13px 14px}
+  .deload-banner .db-btn.on{flex:1}
+  .deload-banner .db-btn.off{background:var(--ok); margin-top:13px}
+  .deload-banner .db-btn.ghost{background:var(--panel); color:var(--muted); border:1px solid var(--line)}
+  .deload-tag{display:inline-block; font-family:var(--display); text-transform:uppercase; letter-spacing:.5px; font-size:11px; font-weight:600; color:#fff; background:var(--accent); border-radius:7px; padding:5px 9px; margin-bottom:10px}
   .chev{display:inline-block; color:var(--faint); transition:transform .2s ease; font-size:13px}
   .ex.open .chev{transform:rotate(90deg)}
   .planday.open .chev, .histitem.open .chev, .wkday.open .chev{transform:rotate(90deg)}
@@ -268,9 +279,11 @@
   .tab.on{color:var(--text)}
   .tab.on .ti{color:var(--accent)}
 
-  .toggle{display:inline-flex; background:var(--panel2); border:1px solid var(--line); border-radius:9px; overflow:hidden}
+  .toggle{display:inline-flex; background:var(--panel2); border:1px solid var(--line); border-radius:9px; overflow:hidden; flex:0 0 auto}
   .toggle button{padding:7px 14px; font-family:var(--mono); font-weight:700; font-size:13px; color:var(--muted)}
   .toggle button.on{background:var(--text); color:var(--bg)}
+  .toggle button[data-deload-set="on"].on{background:var(--ok); color:#fff}
+  .toggle button[data-deload-set="off"].on{background:var(--accent); color:#fff}
 
   .loading{display:flex; align-items:center; justify-content:center; height:60vh; color:var(--muted); font-family:var(--mono)}
 
@@ -575,7 +588,7 @@ const DAYS = {
   d4:{ label:'Chest + Back · Pump', abbr:'CBP', type:'lift', note:'Antagonist supersets · pump', warmup:'pushpull', cooldown:COOLDOWN, exercises:[
     {name:'Incline DB Press', sets:4, reps:'10', group:'Superset 1', swap:{name:'Incline Barbell Press', bar:true}},
     {name:'Neutral-Grip Pull-Up', sets:4, reps:'8–10', group:'Superset 1'},
-    {name:'Flat DB Bench (neutral)', sets:3, reps:'12', group:'Superset 2', swap:{name:'Barbell Bench Press', bar:true}},
+    {name:'Neutral-Grip DB Bench', sets:3, reps:'12', group:'Superset 2', swap:{name:'Barbell Bench Press', bar:true}},
     {name:'Chest-Supported Row', sets:3, reps:'12', group:'Superset 2'},
     {name:'Cable Fly', sets:3, reps:'15', group:'Superset 3'},
     {name:'Lat Pulldown (neutral)', sets:3, reps:'15', group:'Superset 3'},
@@ -586,7 +599,7 @@ const DAYS = {
   ]},
   d5:{ label:'Shoulders + Arms · Pump', abbr:'SAP', type:'lift', note:'Detail / pump', warmup:'shoulderarm', cooldown:COOLDOWN, exercises:[
     {name:'Neutral-Grip DB Shoulder Press', sets:4, reps:'10', group:'Shoulders', swap:{name:'Barbell Overhead Press', bar:true}},
-    {name:'Lateral Raise', sets:3, reps:'12–15', group:'Giant set'},
+    {name:'DB Lateral Raise', sets:3, reps:'12–15', group:'Giant set'},
     {name:'Rear Delt Raise', sets:3, reps:'12–15', group:'Giant set'},
     {name:'Cable Lateral Raise', sets:3, reps:'12–15', group:'Giant set'},
     {name:'EZ-Bar Curl', sets:4, reps:'10', group:'Biceps superset'},
@@ -658,6 +671,10 @@ const PROGRAM_BLURB = 'Five training days plus an optional sixth, built on the c
 const state = {
   tab:'today',
   unit:'lb',
+  deload:false,          // deload week currently active
+  lastDeloadWeek:null,   // Monday (ymd) of the last deload week
+  deloadClockStart:null, // Monday (ymd) when the deload countdown starts (ignores earlier weeks)
+  deloadDismissed:null,  // Monday (ymd) of the week the nudge was dismissed
   session:null,      // active session object
   sessions:[],       // completed sessions cache
   pickedDay:null,    // override of today's template key
@@ -760,9 +777,18 @@ function lastSetsFor(name, excludeId){
   }
   return null;
 }
+function saveSettings(){ return Store.set('settings',{unit:state.unit, deload:state.deload, lastDeloadWeek:state.lastDeloadWeek, deloadClockStart:state.deloadClockStart, deloadDismissed:state.deloadDismissed}); }
+function thisWeekKey(){ return ymd(startOfWeek(new Date())); }
+function trainingWeeksSinceDeload(){
+  const anchor = state.lastDeloadWeek || state.deloadClockStart || thisWeekKey();  // ignore weeks before the clock started
+  const weeks=new Set();
+  state.sessions.forEach(s=>{ const wk=ymd(startOfWeek(new Date(s.date+'T12:00:00'))); if(wk>anchor) weeks.add(wk); });
+  return weeks.size;
+}
+function deloadReminderDue(){ return !state.deload && trainingWeeksSinceDeload()>=5 && state.deloadDismissed!==thisWeekKey(); }
 function newSession(key){
   const tpl = DAYS[key];
-  const s = { id: Date.now(), date: todayKey(), dayKey:key, dayLabel:tpl.label, type:tpl.type,
+  const s = { id: Date.now(), date: todayKey(), dayKey:key, dayLabel:tpl.label, type:tpl.type, deload:!!state.deload,
     started: Date.now(), elapsed:0, warmup:[], cooldown:[], exercises:[], cardio:[] };
   const wv = weekVariantIndex(s.date);
   s.warmupVariant = ['A','B','C'][wv];
@@ -771,9 +797,10 @@ function newSession(key){
   (tpl.cooldown||[]).forEach(w=> s.cooldown.push({name:w.name, target:w.target, done:false}));
   (tpl.exercises||[]).forEach(ex=>{
     if(!ex.sets) return; // strength/rep-based entries only
+    const nsets = state.deload ? Math.max(2, Math.round(ex.sets*0.6)) : ex.sets;   // ~40% volume cut on deloads
     const sets=[];
-    for(let i=0;i<ex.sets;i++) sets.push({weight:'',reps:'',done:false});
-    const o={name:ex.name, target:ex.sets+' × '+ex.reps, group:ex.group||'', reps:ex.reps,
+    for(let i=0;i<nsets;i++) sets.push({weight:'',reps:'',done:false});
+    const o={name:ex.name, target:nsets+' × '+ex.reps, group:ex.group||'', reps:ex.reps,
       bar:!!ex.bar, load:ex.load||'', count:ex.count||'reps', note:'', lastNote:lastNoteFor(ex.name), sets};
     if(ex.swap){ o.swap=ex.swap; o.baseName=ex.name; o.baseBar=!!ex.bar; o.swapped=false; }
     s.exercises.push(o);
@@ -996,7 +1023,21 @@ function renderToday(){
     action='<div style="margin-top:16px"><button class="btn" data-start="'+key+'">Start '+esc(tpl.label)+'</button></div>';
   }
 
-  v.innerHTML = head + chips + action;
+  let deloadBanner='';
+  if(state.deload){
+    deloadBanner='<div class="panel deload-banner active">'+
+      '<div class="db-title">Deload week active</div>'+
+      '<div class="db-sub">New workouts have ~40% fewer sets. Keep loads light and leave 3–4 reps in reserve.</div>'+
+      '<button class="db-btn off" data-deload-off>End deload</button></div>';
+  } else if(deloadReminderDue()){
+    deloadBanner='<div class="panel deload-banner">'+
+      '<div class="db-title">Time for a deload?</div>'+
+      '<div class="db-sub">You\'ve trained about '+trainingWeeksSinceDeload()+' weeks since your last easy week. A lighter week helps you recover and keep progressing.</div>'+
+      '<div class="db-row"><button class="db-btn on" data-deload-on>Start deload week</button>'+
+      '<button class="db-btn ghost" data-deload-snooze>Not now</button></div></div>';
+  }
+
+  v.innerHTML = head + deloadBanner + chips + action;
 }
 
 function countLabel(c){ return c==='sec'?'Secs':c==='steps'?'Steps':'Reps'; }
@@ -1018,7 +1059,7 @@ function prepBlock(title, items, kind, openByDefault){
 
 function renderActive(v){
   const s=state.session;
-  const eyebrow = state.editing ? 'Editing · '+esc(s.date) : 'In progress';
+  const eyebrow = state.editing ? 'Editing · '+esc(s.date) : (s.deload ? 'In progress · Deload' : 'In progress');
   let html='<div class="row spread" style="margin-top:6px"><div><span class="eyebrow">'+eyebrow+'</span><div class="h-big">'+esc(s.dayLabel)+'</div></div>'+
     '<button class="btn ghost sm" data-discard>'+(state.editing?'Cancel':'Discard')+'</button></div>';
   if((s.warmup||[]).length){ html+='<div id="warmwrap"></div>'; }
@@ -1209,7 +1250,11 @@ function renderPlan(){
     '<div class="panel" style="padding:15px 16px;margin-top:8px"><div class="row spread">'+
     '<div><div style="font-weight:600">Weight units</div><div class="muted" style="font-size:13px">Used for logging and the bar loader</div></div>'+
     '<div class="toggle"><button data-unit="kg" class="'+(state.unit==='kg'?'on':'')+'">KG</button>'+
-    '<button data-unit="lb" class="'+(state.unit==='lb'?'on':'')+'">LB</button></div></div></div>';
+    '<button data-unit="lb" class="'+(state.unit==='lb'?'on':'')+'">LB</button></div></div></div>'+
+    '<div class="panel" style="padding:15px 16px;margin-top:8px"><div class="row spread">'+
+    '<div><div style="font-weight:600">Deload week</div><div class="muted" style="font-size:13px">Trims new workouts ~40%. You\'ll be reminded every few weeks</div></div>'+
+    '<div class="toggle"><button data-deload-set="off" class="'+(state.deload?'':'on')+'">OFF</button>'+
+    '<button data-deload-set="on" class="'+(state.deload?'on':'')+'">ON</button></div></div></div>';
   v.innerHTML=html;
 }
 
@@ -1233,7 +1278,7 @@ function mmdd(d){ return String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.get
 function ymd(d){ return d.toISOString().slice(0,10); }
 
 function sessionDetailBody(s){
-  let body='';
+  let body = s.deload ? '<div class="deload-tag">Deload week</div>' : '';
   (s.exercises||[]).forEach(ex=>{
     const done=ex.sets.filter(st=>st.done);
     if(!done.length && !(ex.note&&ex.note.trim())) return;
@@ -1261,12 +1306,29 @@ function sessionDetailBody(s){
 
 /* ===== PROGRESS (per-exercise charts) ===== */
 function catForDay(k){ return (k==='d1'||k==='d4')?'Chest & Back':(k==='d2'||k==='d5')?'Shoulders & Arms':(k==='d3')?'Legs':(k==='d6')?'Core & Cardio':'Other'; }
+function categoryByKeyword(name){
+  const n=(name||'').toLowerCase();
+  // legs first (specific lower-body terms, incl. "leg curl/press/extension")
+  if(/squat|hack|lunge|calf|romanian|\brdl\b|goblet|step-?up|hip thrust|glute|leg press|leg curl|leg extension/.test(n)) return 'Legs';
+  // shoulders & arms
+  if(/shoulder press|overhead press|\bohp\b|landmine|lateral raise|rear delt|\bdelt\b|shrug|face pull|arnold press|curl|tricep|pushdown|skull|hammer|forearm|wrist|extension/.test(n)) return 'Shoulders & Arms';
+  // chest & back (remaining presses land here; shoulder/leg presses already handled)
+  if(/bench|chest|press|fly|flye|row|pull-?up|pull ?up|pulldown|\blat\b|pullover|dip|deadlift/.test(n)) return 'Chest & Back';
+  return 'Other';
+}
+function isCurrentExercise(name){
+  for(const k of Object.keys(DAYS)){
+    const day=DAYS[k]; if(!day||!day.exercises) continue;
+    for(const ex of day.exercises){ if(ex.name===name || (ex.swap && ex.swap.name===name)) return true; }
+  }
+  return false;
+}
 function exerciseCategory(name){
   for(const k of Object.keys(DAYS)){
     const day=DAYS[k]; if(!day||!day.exercises) continue;
     for(const ex of day.exercises){ if(ex.name===name || (ex.swap && ex.swap.name===name)) return catForDay(k); }
   }
-  return 'Other';
+  return categoryByKeyword(name);   // old / renamed names still sort sensibly
 }
 function renderCharts(){
   const v=$('#view');
@@ -1279,6 +1341,7 @@ function renderCharts(){
     if(s.date < winStartY) return;
     (s.exercises||[]).forEach(ex=>{
       if(ex.load==='bw') return;                                    // weighted lifts only
+      if(!isCurrentExercise(ex.name)) return;                       // only exercises still in the program
       const done=ex.sets.filter(st=>st.done && (Number(st.reps)||0)>0);
       if(!done.length) return;
       const weights=done.map(st=>Number(st.weight)||0);
@@ -1467,7 +1530,13 @@ document.addEventListener('click', async (e)=>{
   if(pick){ state.pickedDay=pick.getAttribute('data-pick'); renderToday(); return; }
 
   const unit=e.target.closest('[data-unit]');
-  if(unit){ state.unit=unit.getAttribute('data-unit'); await Store.set('settings',{unit:state.unit}); render(); return; }
+  if(unit){ state.unit=unit.getAttribute('data-unit'); await saveSettings(); render(); return; }
+
+  const dset=e.target.closest('[data-deload-set]');
+  if(dset){ const on=dset.getAttribute('data-deload-set')==='on'; state.deload=on; if(on) state.lastDeloadWeek=thisWeekKey(); await saveSettings(); render(); return; }
+  if(e.target.closest('[data-deload-on]')){ state.deload=true; state.lastDeloadWeek=thisWeekKey(); await saveSettings(); render(); return; }
+  if(e.target.closest('[data-deload-off]')){ state.deload=false; await saveSettings(); render(); return; }
+  if(e.target.closest('[data-deload-snooze]')){ state.deloadDismissed=thisWeekKey(); await saveSettings(); render(); return; }
 
   const editBtn=e.target.closest('[data-edit]');
   if(editBtn){ editSession(+editBtn.getAttribute('data-edit')); return; }
@@ -1581,7 +1650,8 @@ function showFatal(e){
 }
 async function hydrate(){
   try{
-    const settings=await Store.get('settings'); if(settings && settings.unit) state.unit=settings.unit;
+    const settings=await Store.get('settings'); if(settings){ if(settings.unit) state.unit=settings.unit; state.deload=!!settings.deload; state.lastDeloadWeek=settings.lastDeloadWeek||null; state.deloadClockStart=settings.deloadClockStart||null; state.deloadDismissed=settings.deloadDismissed||null; }
+    if(!state.deloadClockStart){ state.deloadClockStart=thisWeekKey(); saveSettings(); }   // start counting from now, not past weeks
     const keys=await Store.list('session:');
     const loaded=[];
     for(const k of keys){ const s=await Store.get(k); if(s) loaded.push(s); }
