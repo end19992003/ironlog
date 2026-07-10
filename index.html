@@ -376,6 +376,7 @@
       <div class="modal-body" id="modalBody"></div>
     </div>
   </div>
+  <input type="file" id="importfile" accept="application/json,.json" hidden>
 </div>
 
 <script>
@@ -778,6 +779,37 @@ function lastSetsFor(name, excludeId){
   return null;
 }
 function saveSettings(){ return Store.set('settings',{unit:state.unit, deload:state.deload, lastDeloadWeek:state.lastDeloadWeek, deloadClockStart:state.deloadClockStart, deloadDismissed:state.deloadDismissed}); }
+
+/* ---------- Backup / Restore ---------- */
+async function exportData(){
+  try{
+    const keys=await Store.list('');
+    const data={};
+    for(const k of keys){ data[k]=await Store.get(k); }
+    const payload={app:'ironlog', version:1, exportedAt:new Date().toISOString(), data};
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download='ironlog-backup-'+ymd(new Date())+'.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 3000);
+  }catch(e){ confirmModal('Could not create the backup file on this device.','OK'); }
+}
+function readFileText(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=()=>rej(r.error||new Error('read')); r.readAsText(file); }); }
+async function importData(file){
+  let obj;
+  try{ obj=JSON.parse(await readFileText(file)); }
+  catch(e){ confirmModal('That file could not be read as a backup.','OK'); return; }
+  if(!obj || obj.app!=='ironlog' || !obj.data || typeof obj.data!=='object'){ confirmModal('That doesn\u2019t look like an Ironlog backup file.','OK'); return; }
+  const count=Object.keys(obj.data).filter(k=>k.indexOf('session:')===0).length;
+  const ok=await confirmModal('Restore '+count+' logged session'+(count===1?'':'s')+'? This replaces the data currently on this device.','Restore');
+  if(!ok) return;
+  try{
+    const existing=await Store.list('');
+    for(const k of existing){ await Store.del(k); }
+    for(const k of Object.keys(obj.data)){ if(obj.data[k]!=null) await Store.set(k, obj.data[k]); }
+    location.reload();
+  }catch(e){ confirmModal('Restore failed while writing to this device.','OK'); }
+}
 function thisWeekKey(){ return ymd(startOfWeek(new Date())); }
 function trainingWeeksSinceDeload(){
   const anchor = state.lastDeloadWeek || state.deloadClockStart || thisWeekKey();  // ignore weeks before the clock started
@@ -1254,7 +1286,13 @@ function renderPlan(){
     '<div class="panel" style="padding:15px 16px;margin-top:8px"><div class="row spread">'+
     '<div><div style="font-weight:600">Deload week</div><div class="muted" style="font-size:13px">Trims new workouts ~40%. You\'ll be reminded every few weeks</div></div>'+
     '<div class="toggle"><button data-deload-set="off" class="'+(state.deload?'':'on')+'">OFF</button>'+
-    '<button data-deload-set="on" class="'+(state.deload?'on':'')+'">ON</button></div></div></div>';
+    '<button data-deload-set="on" class="'+(state.deload?'on':'')+'">ON</button></div></div></div>'+
+    '<div class="panel" style="padding:15px 16px;margin-top:8px">'+
+    '<div style="font-weight:600">Back up &amp; restore</div>'+
+    '<div class="muted" style="font-size:13px;margin-top:3px;line-height:1.45">Your log lives only on this device. Save a backup file you can keep, then restore it on a new phone, iPad, or computer.</div>'+
+    '<div style="display:flex;gap:10px;margin-top:12px">'+
+    '<button class="btn ghost sm" style="flex:1" data-export>Back up data</button>'+
+    '<button class="btn ghost sm" style="flex:1" data-restore>Restore data</button></div></div>';
   v.innerHTML=html;
 }
 
@@ -1538,6 +1576,9 @@ document.addEventListener('click', async (e)=>{
   if(e.target.closest('[data-deload-off]')){ state.deload=false; await saveSettings(); render(); return; }
   if(e.target.closest('[data-deload-snooze]')){ state.deloadDismissed=thisWeekKey(); await saveSettings(); render(); return; }
 
+  if(e.target.closest('[data-export]')){ exportData(); return; }
+  if(e.target.closest('[data-restore]')){ const el=document.getElementById('importfile'); if(el) el.click(); return; }
+
   const editBtn=e.target.closest('[data-edit]');
   if(editBtn){ editSession(+editBtn.getAttribute('data-edit')); return; }
 
@@ -1668,6 +1709,8 @@ async function hydrate(){
 function boot(){
   try{ render(); }              // paint a working UI immediately — never depends on storage
   catch(e){ showFatal(e); return; }
+  const imp=document.getElementById('importfile');
+  if(imp) imp.addEventListener('change', async (e)=>{ const f=e.target.files && e.target.files[0]; e.target.value=''; if(f) await importData(f); });
   hydrate();                    // then load saved data in the background
 }
 try{ boot(); }catch(e){ showFatal(e); }
