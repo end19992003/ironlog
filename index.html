@@ -862,6 +862,7 @@ function saveSessionSoon(){
    start of the current running segment. Each tick folds the segment into
    elapsed and resets started to now, so closing the app never over-counts. */
 let tickCount=0;
+let audioUnlocked=false;
 function startTimer(){
   if(state.timer) return;                 // idempotent — one always-on tick
   state.timer=setInterval(()=>{
@@ -878,6 +879,7 @@ function startTimer(){
     }
     // rest countdown — runs on any tab, independent of the workout clock
     if(state.rest){
+      if(state.audio && (state.audio.state==='suspended' || state.audio.state==='interrupted')){ try{ state.audio.resume(); }catch(e){} }
       state.rest.remaining -= 1;
       const r=state.rest.remaining;
       if(r>=1 && r<=5){ playBeep(); }
@@ -910,7 +912,13 @@ function togglePause(){
 function ensureAudio(){
   try{
     if(!state.audio){ const AC=window.AudioContext||window.webkitAudioContext; if(AC) state.audio=new AC(); }
-    if(state.audio && state.audio.state==='suspended') state.audio.resume();
+    const ac=state.audio; if(!ac) return;
+    if(ac.state==='suspended' || ac.state==='interrupted'){ const p=ac.resume(); if(p&&p.catch) p.catch(()=>{}); }
+    if(!audioUnlocked){                       // iOS needs a sound played inside a gesture to unlock
+      const buf=ac.createBuffer(1,1,22050);
+      const src=ac.createBufferSource(); src.buffer=buf; src.connect(ac.destination); src.start(0);
+      audioUnlocked=true;
+    }
   }catch(e){}
 }
 function playBeep(){   // short countdown tick (5..1)
@@ -1711,6 +1719,9 @@ function boot(){
   catch(e){ showFatal(e); return; }
   const imp=document.getElementById('importfile');
   if(imp) imp.addEventListener('change', async (e)=>{ const f=e.target.files && e.target.files[0]; e.target.value=''; if(f) await importData(f); });
+  // keep the beep audio alive: any tap re-arms it, and so does returning to the app
+  ['pointerdown','touchend','mousedown'].forEach(evt=> document.addEventListener(evt, ensureAudio, {passive:true}));
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) ensureAudio(); });
   hydrate();                    // then load saved data in the background
 }
 try{ boot(); }catch(e){ showFatal(e); }
