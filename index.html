@@ -152,7 +152,13 @@
   .ex-head{display:flex; align-items:center; justify-content:space-between; padding:15px 16px; gap:10px}
   .ex-name{font-family:var(--display); font-weight:600; font-size:18px; letter-spacing:.4px; text-transform:uppercase}
   .ex-target{font-family:var(--mono); font-size:13px; color:var(--muted); margin-top:2px}
-  .ex-meta{text-align:right; flex:0 0 auto}
+  .ex-meta{display:flex; align-items:center; gap:9px; flex:0 0 auto}
+  .skipbtn{font-family:var(--display); text-transform:uppercase; letter-spacing:.5px; font-size:11px; font-weight:600; color:#fff; background:var(--accent); border-radius:8px; padding:7px 11px; flex:0 0 auto}
+  .ex.skipped{opacity:.55}
+  .ex.skipped .ex-head{background:rgba(226,58,75,.14)}
+  .ex.skipped .ex-name{text-decoration:line-through; color:var(--muted)}
+  .ex.skipped .pill{opacity:.5}
+  .ex.skipped .skipbtn{background:var(--panel); color:var(--muted); border:1px solid var(--line)}
   .chev{display:inline-block; color:var(--faint); transition:transform .2s ease; font-size:13px}
   .ex.open .chev{transform:rotate(90deg)}
   .planday.open .chev, .histitem.open .chev, .wkday.open .chev{transform:rotate(90deg)}
@@ -231,12 +237,6 @@
   .stat .num{font-family:var(--display); font-weight:700; font-size:34px; line-height:1; letter-spacing:.5px}
   .stat .num.accent{color:var(--accent)}
   .stat .lbl{font-family:var(--display); text-transform:uppercase; letter-spacing:1.5px; font-size:11px; color:var(--muted); margin-top:7px}
-  .chartcard{padding:16px; margin-top:14px}
-  .chart{display:flex; align-items:flex-end; gap:7px; height:120px; margin-top:14px}
-  .barwrap{flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; height:100%; justify-content:flex-end}
-  .bar{width:100%; max-width:30px; background:linear-gradient(180deg,var(--accent),#7a1f29); border-radius:4px 4px 0 0; min-height:3px; transition:height .4s ease}
-  .bar.empty{background:var(--panel2)}
-  .barlbl{font-family:var(--mono); font-size:10px; color:var(--faint)}
 
   .histitem{padding:0; margin-top:10px; overflow:hidden}
   .hist-head{display:flex; align-items:center; justify-content:space-between; padding:14px 16px; gap:10px}
@@ -330,7 +330,7 @@
   /* per-exercise progress charts */
   .chart{display:flex; align-items:flex-end; gap:7px; padding:8px 2px 0; overflow-x:auto}
   .cbar-col{flex:1 0 40px; display:flex; flex-direction:column; align-items:center; gap:5px}
-  .cbar-val{font-family:var(--mono); font-weight:700; font-size:13px; color:var(--text)}
+  .cbar-val{font-family:var(--mono); font-weight:700; font-size:12px; color:var(--text); overflow-wrap:anywhere; text-align:center; line-height:1.25}
   .cbar-track{width:100%; height:130px; display:flex; align-items:flex-end; background:var(--panel2); border-radius:8px; overflow:hidden}
   .cbar-fill{width:100%; background:linear-gradient(180deg,var(--accent),#6f1b26); border-radius:8px 8px 0 0}
   .cbar-reps{font-family:var(--mono); font-size:11px; color:var(--muted)}
@@ -1056,6 +1056,7 @@ function exDoneCount(ex){ return ex.sets.filter(st=>st.done).length; }
 function buildExercise(ex, idx){
   const node=el('<div class="ex panel" data-ex="'+idx+'"></div>');
   if(ex._open) node.classList.add('open');
+  if(ex.skipped) node.classList.add('skipped');
   const bw = ex.load==='bw';
   const cHdr = countLabel(ex.count);
   const wHdr = state.unit.toUpperCase();
@@ -1075,7 +1076,7 @@ function buildExercise(ex, idx){
   node.innerHTML =
     '<div class="ex-head" data-toggle>'+
       '<div><div class="ex-name">'+esc(ex.name)+'</div><div class="ex-target">target '+esc(ex.target)+restHint+'</div></div>'+
-      '<div class="ex-meta"><span class="pill '+(exDoneCount(ex)===ex.sets.length?'ok':'')+'" data-count>'+exDoneCount(ex)+'/'+ex.sets.length+'</span> <span class="chev">▶</span></div>'+
+      '<div class="ex-meta"><button class="skipbtn" data-skip>'+(ex.skipped?'Skipped':'Skip')+'</button><span class="pill '+(exDoneCount(ex)===ex.sets.length?'ok':'')+'" data-count>'+exDoneCount(ex)+'/'+ex.sets.length+'</span> <span class="chev">▶</span></div>'+
     '</div>'+
     '<div class="ex-body">'+
       lastSets+
@@ -1259,6 +1260,14 @@ function sessionDetailBody(s){
 }
 
 /* ===== PROGRESS (per-exercise charts) ===== */
+function catForDay(k){ return (k==='d1'||k==='d4')?'Chest & Back':(k==='d2'||k==='d5')?'Shoulders & Arms':(k==='d3')?'Legs':(k==='d6')?'Core & Cardio':'Other'; }
+function exerciseCategory(name){
+  for(const k of Object.keys(DAYS)){
+    const day=DAYS[k]; if(!day||!day.exercises) continue;
+    for(const ex of day.exercises){ if(ex.name===name || (ex.swap && ex.swap.name===name)) return catForDay(k); }
+  }
+  return 'Other';
+}
 function renderCharts(){
   const v=$('#view');
   const list=state.sessions.slice();
@@ -1269,48 +1278,57 @@ function renderCharts(){
   list.forEach(s=>{
     if(s.date < winStartY) return;
     (s.exercises||[]).forEach(ex=>{
-      if(ex.load==='bw') return;                       // weighted lifts only
-      const done=ex.sets.filter(st=>st.done && (Number(st.weight)||0)>0);
+      if(ex.load==='bw') return;                                    // weighted lifts only
+      const done=ex.sets.filter(st=>st.done && (Number(st.reps)||0)>0);
       if(!done.length) return;
-      const topW=Math.max.apply(null, done.map(st=>Number(st.weight)||0));
-      const reps=done.filter(st=>(Number(st.weight)||0)===topW).map(st=>Number(st.reps)||0);
-      (byEx[ex.name]=byEx[ex.name]||[]).push({date:s.date, topW, reps});
+      const weights=done.map(st=>Number(st.weight)||0);
+      const reps=done.map(st=>Number(st.reps)||0);
+      (byEx[ex.name]=byEx[ex.name]||[]).push({date:s.date, weights, reps, maxW:Math.max.apply(null,weights)});
     });
   });
   const names=Object.keys(byEx);
-  names.sort((a,b)=> byEx[b][byEx[b].length-1].date.localeCompare(byEx[a][byEx[a].length-1].date));
   let html='<div style="margin-top:6px"><span class="eyebrow">Progress</span><div class="h-big">Exercise trends</div>'+
-    '<div class="muted" style="margin-top:6px;font-size:14px">Top working weight per session over the last 4 weeks. Tap an exercise for its chart.</div></div>';
+    '<div class="muted" style="margin-top:6px;font-size:14px">Weight (lb) per session over the last 4 weeks. Tap an exercise for its chart.</div></div>';
   if(!names.length){
     html+='<div class="empty"><div class="ic">▲</div>Log some weighted sets and your per-exercise progress charts show up here.</div>';
     v.innerHTML=html; return;
   }
-  html+='<div style="margin-top:14px">';
-  names.forEach(name=>{
-    const pts=byEx[name].slice().sort((a,b)=>a.date.localeCompare(b.date));
-    const open=state.openChart===name;
-    const latest=pts[pts.length-1];
-    html+='<div class="ex panel'+(open?' open':'')+'" data-chart="'+esc(name)+'">'+
-      '<div class="ex-head" data-charttoggle>'+
-        '<div><div class="ex-name">'+esc(name)+'</div><div class="ex-target">latest '+latest.topW+' '+state.unit+' · '+pts.length+' session'+(pts.length>1?'s':'')+'</div></div>'+
-        '<span class="chev">▶</span>'+
-      '</div>';
-    if(open){
-      const ws=pts.map(p=>p.topW); const maxW=Math.max.apply(null,ws), minW=Math.min.apply(null,ws); const range=maxW-minW;
-      html+='<div class="ex-body" style="display:block"><div class="chart">';
-      pts.forEach(p=>{
-        const h = range>0 ? Math.round(38+62*((p.topW-minW)/range)) : 72;
-        const reps=p.reps.every(r=>r===p.reps[0]) ? (p.reps.length+'×'+p.reps[0]) : p.reps.join('/');
-        html+='<div class="cbar-col">'+
-          '<div class="cbar-val">'+p.topW+'</div>'+
-          '<div class="cbar-track"><div class="cbar-fill" style="height:'+h+'%"></div></div>'+
-          '<div class="cbar-reps">'+esc(reps)+'</div>'+
-          '<div class="cbar-date">'+mmdd(new Date(p.date+'T12:00:00'))+'</div>'+
+  // group by category
+  const CAT_ORDER=['Chest & Back','Shoulders & Arms','Legs','Core & Cardio','Other'];
+  const groups={}; names.forEach(n=>{ const c=exerciseCategory(n); (groups[c]=groups[c]||[]).push(n); });
+  const uniq=(arr)=>arr.every((x)=>x===arr[0]);
+  html+='<div style="margin-top:8px">';
+  CAT_ORDER.forEach(cat=>{
+    const grp=groups[cat]; if(!grp||!grp.length) return;
+    grp.sort((a,b)=> byEx[b][byEx[b].length-1].date.localeCompare(byEx[a][byEx[a].length-1].date));
+    html+='<div class="sec"><span class="eyebrow">'+esc(cat)+'</span></div>';
+    grp.forEach(name=>{
+      const pts=byEx[name].slice().sort((a,b)=>a.date.localeCompare(b.date));
+      const open=state.openChart===name;
+      const latest=pts[pts.length-1];
+      html+='<div class="ex panel'+(open?' open':'')+'" data-chart="'+esc(name)+'" style="margin-top:8px">'+
+        '<div class="ex-head" data-charttoggle>'+
+          '<div><div class="ex-name">'+esc(name)+'</div><div class="ex-target">latest '+latest.maxW+' '+state.unit+' · '+pts.length+' session'+(pts.length>1?'s':'')+'</div></div>'+
+          '<span class="chev">▶</span>'+
         '</div>';
-      });
-      html+='</div><div class="chart-note">bar height = trend within this window · number = top weight (lb) · below: sets×reps</div></div>';
-    }
-    html+='</div>';
+      if(open){
+        const maxs=pts.map(p=>p.maxW); const hi=Math.max.apply(null,maxs), lo=Math.min.apply(null,maxs); const range=hi-lo;
+        html+='<div class="ex-body" style="display:block"><div class="chart">';
+        pts.forEach(p=>{
+          const h = range>0 ? Math.round(40+60*((p.maxW-lo)/range)) : 72;
+          const wLabel = uniq(p.weights) ? String(p.weights[0]) : p.weights.join('/');
+          const rLabel = uniq(p.reps) ? (p.reps.length+'×'+p.reps[0]) : p.reps.join('/');
+          html+='<div class="cbar-col">'+
+            '<div class="cbar-val">'+esc(wLabel)+'</div>'+
+            '<div class="cbar-track"><div class="cbar-fill" style="height:'+h+'%"></div></div>'+
+            '<div class="cbar-reps">'+esc(rLabel)+'</div>'+
+            '<div class="cbar-date">'+mmdd(new Date(p.date+'T12:00:00'))+'</div>'+
+          '</div>';
+        });
+        html+='</div><div class="chart-note">above each bar = weight(s) in '+state.unit+' · below = sets×reps (or reps per set)</div></div>';
+      }
+      html+='</div>';
+    });
   });
   html+='</div>';
   v.innerHTML=html;
@@ -1511,6 +1529,12 @@ document.addEventListener('click', async (e)=>{
       saveSessionSoon(); }
     return;
   }
+
+  // skip / un-skip an exercise
+  const skipBtn=e.target.closest('[data-skip]');
+  if(skipBtn && state.session){ const card=skipBtn.closest('.ex'); const i=+card.getAttribute('data-ex'); const ex=state.session.exercises[i];
+    ex.skipped=!ex.skipped; if(ex.skipped) ex._open=false;
+    card.replaceWith(buildExercise(ex,i)); saveSessionSoon(); return; }
 
   // expand/collapse exercise
   const exHead=e.target.closest('.ex .ex-head[data-toggle]');
