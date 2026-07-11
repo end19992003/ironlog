@@ -877,15 +877,18 @@ function startTimer(){
       });
       if((++tickCount%10)===0 && !state.editing) Store.set('current-session', s);
     }
-    // rest countdown — runs on any tab, independent of the workout clock
+    // rest countdown — wall-clock based, so it stays correct even if ticks are throttled/paused
     if(state.rest){
       if(state.audio && (state.audio.state==='suspended' || state.audio.state==='interrupted')){ try{ state.audio.resume(); }catch(e){} }
-      state.rest.remaining -= 1;
-      const r=state.rest.remaining;
-      if(r>=1 && r<=5){ playBeep(); }
-      else if(r===0){ playBell(); if(navigator.vibrate){ try{ navigator.vibrate([120,60,120]); }catch(e){} } }
-      updateRestBar();
-      if(r <= -3){ state.rest=null; hideRestBar(); }
+      const rem = Math.ceil((state.rest.endAt - now)/1000);
+      const prev = state.rest.lastRem;
+      if(rem !== prev){
+        if(rem>=1 && rem<=5 && rem<prev){ playBeep(); }                 // one beep per second, 5→1
+        if(rem<=0 && rem>-3 && !state.rest.belled){ state.rest.belled=true; playBell(); if(navigator.vibrate){ try{ navigator.vibrate([120,60,120]); }catch(e){} } }
+        state.rest.lastRem = rem;
+        updateRestBar();
+      }
+      if(rem <= -3){ state.rest=null; hideRestBar(); }
     }
   },1000);
 }
@@ -952,17 +955,18 @@ function playBell(){   // longer "time's up" tone at zero
 /* ---------- Rest timer ---------- */
 function showRestBar(){ const b=document.getElementById('restbar'); if(b){ b.hidden=false; } document.body.classList.add('resting'); updateRestBar(); }
 function hideRestBar(){ const b=document.getElementById('restbar'); if(b) b.hidden=true; document.body.classList.remove('resting'); }
+function restRemaining(){ return state.rest ? Math.ceil((state.rest.endAt - Date.now())/1000) : 0; }
 function updateRestBar(){
   const b=document.getElementById('restbar'), t=document.getElementById('rbtime'), l=document.getElementById('rblabel');
   if(!b||!t||!state.rest) return;
-  const r=state.rest.remaining;
+  const r=restRemaining();
   t.textContent = r>0 ? fmtClock(r) : "Let's Go!";
   if(l) l.textContent = r>0 ? ('Rest · '+state.rest.label) : '';
   b.classList.toggle('done', r<=0);
 }
 function startRest(seconds, label){
   ensureAudio();
-  state.rest={ remaining:seconds, total:seconds, label:label||'rest', done:false };
+  state.rest={ endAt: Date.now()+seconds*1000, total:seconds, label:label||'rest', lastRem:seconds+1, belled:false };
   showRestBar();
   startTimer();
 }
@@ -1611,7 +1615,7 @@ document.addEventListener('click', async (e)=>{
 
   // rest timer controls
   const radj=e.target.closest('[data-rest-adj]');
-  if(radj){ if(state.rest){ state.rest.remaining=Math.max(0, state.rest.remaining + (parseInt(radj.getAttribute('data-rest-adj'),10)||0)); updateRestBar(); } return; }
+  if(radj){ if(state.rest){ const d=(parseInt(radj.getAttribute('data-rest-adj'),10)||0)*1000; state.rest.endAt+=d; const rem=restRemaining(); state.rest.lastRem=rem+1; if(rem>0) state.rest.belled=false; updateRestBar(); } return; }
   const rskip=e.target.closest('[data-rest-skip]');
   if(rskip){ state.rest=null; hideRestBar(); return; }
   const restBtn=e.target.closest('[data-rest]');
@@ -1721,7 +1725,7 @@ function boot(){
   if(imp) imp.addEventListener('change', async (e)=>{ const f=e.target.files && e.target.files[0]; e.target.value=''; if(f) await importData(f); });
   // keep the beep audio alive: any tap re-arms it, and so does returning to the app
   ['pointerdown','touchend','mousedown'].forEach(evt=> document.addEventListener(evt, ensureAudio, {passive:true}));
-  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) ensureAudio(); });
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ ensureAudio(); if(state.rest) updateRestBar(); } });
   hydrate();                    // then load saved data in the background
 }
 try{ boot(); }catch(e){ showFatal(e); }
