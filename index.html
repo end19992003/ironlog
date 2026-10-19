@@ -349,6 +349,37 @@
   .cbar-reps{font-family:var(--mono); font-size:11px; color:var(--muted)}
   .cbar-date{font-family:var(--mono); font-size:10px; color:var(--faint)}
   .chart-note{font-size:11px; color:var(--faint); margin-top:12px; text-align:center}
+  /* erg program */
+  .progstrip{margin-top:6px; padding:12px 16px; border-color:rgba(143,183,255,.35); background:rgba(143,183,255,.07)}
+  .progstrip + .dayhead{margin-top:12px}
+  .ps-week{font-family:var(--display); text-transform:uppercase; letter-spacing:1.5px; font-weight:700; font-size:14px; color:#8fb7ff}
+  .ps-dates{font-family:var(--mono); font-size:12px; color:var(--muted)}
+  .ps-sub{font-size:13px; color:var(--muted); margin-top:5px; line-height:1.4}
+  .ergline{margin-top:10px; font-size:14px; line-height:1.4; color:var(--text)}
+  .ergline b{font-family:var(--display); text-transform:uppercase; letter-spacing:1px; font-size:12px; color:#8fb7ff; margin-right:6px}
+  .sleeprow{margin-top:14px; padding:13px 16px}
+  .ergcard{padding:16px; margin-top:14px; border-color:rgba(143,183,255,.45)}
+  .ergcard .ex-head{padding:0}
+  .ergcard.skipped{opacity:.55}
+  .ergcard.skipped .ex-name{text-decoration:line-through; color:var(--muted)}
+  .ergcard.skipped .skipbtn{background:var(--panel); color:var(--muted); border:1px solid var(--line)}
+  .ergcard.skipped .ergbody{display:none}
+  .ergtip{font-size:13px; color:var(--muted); line-height:1.45; margin-top:12px; background:rgba(143,183,255,.08); border:1px solid rgba(143,183,255,.22); border-radius:10px; padding:9px 12px}
+  .erggrid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px 8px; margin-top:14px}
+  .erggrid label{display:flex; flex-direction:column; gap:5px; font-family:var(--display); text-transform:uppercase; letter-spacing:1px; font-size:11px; color:var(--faint)}
+  .ergsplit{display:flex; flex-direction:column; gap:5px; font-family:var(--display); text-transform:uppercase; letter-spacing:1px; font-size:11px; color:var(--faint)}
+  .ergsplit span{font-family:var(--mono); font-weight:700; font-size:17px; color:var(--text); letter-spacing:0; text-transform:none; padding:11px 0; text-align:center; border:1px dashed var(--line); border-radius:9px}
+  .wkrow{display:grid; grid-template-columns:26px 52px 74px 1fr; gap:8px; align-items:center; padding:8px 6px; border-bottom:1px solid rgba(48,53,63,.5); font-size:13px}
+  .wkrow:last-child{border-bottom:none}
+  .wkrow.hd{font-family:var(--display); text-transform:uppercase; letter-spacing:1px; font-size:10px; color:var(--faint)}
+  .wkrow .wr-n{font-family:var(--mono); font-weight:700; color:var(--muted)}
+  .wkrow .wr-d, .wkrow .wr-s{font-family:var(--mono); color:var(--muted)}
+  .wkrow.dl .wr-t{color:#8fb7ff}
+  .wkrow.now{background:rgba(143,183,255,.14); border-radius:8px; border-bottom-color:transparent}
+  .wkrow.now .wr-n, .wkrow.now .wr-d, .wkrow.now .wr-s{color:var(--text)}
+  .paceinput{display:flex; gap:10px; margin-top:12px}
+  .paceinput .fld{max-width:130px}
+  .cbar-fill.row{background:linear-gradient(180deg,#8fb7ff,#2b5aa3)}
 </style>
 </head>
 <body style="background:#0A346B;color:#EEF4FC;margin:0;min-height:100%;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif">
@@ -546,82 +577,59 @@ const COOLDOWN = [
 ];
 
 const DAYS = {
-  d1:{ label:'Chest + Back', abbr:'CB', type:'lift', note:'Antagonist supersets', warmup:'pushpull', cooldown:COOLDOWN, exercises:[
+  ua:{ label:'Upper A', abbr:'UA', type:'lift', note:'Chest + back heavy · delts · arms', warmup:'pushpull', cooldown:COOLDOWN, exercises:[
     {name:'Neutral-Grip DB Bench', sets:4, reps:'6–8', group:'Superset 1', swap:{name:'Barbell Bench Press', bar:true}},
-    {name:'Neutral-Grip Pull-Up', sets:4, reps:'8–10', group:'Superset 1'},
-    {name:'Incline DB Press', sets:4, reps:'8–10', group:'Superset 2', swap:{name:'Incline Barbell Press', bar:true}},
-    {name:'Barbell Row', sets:4, reps:'8–10', group:'Superset 2', bar:true, swap:{name:'Bent-Over DB Row', bar:false}},
-    {name:'Cable Fly', sets:3, reps:'10–12', group:'Superset 3'},
-    {name:'T-Bar Row', sets:3, reps:'10–12', group:'Superset 3'},
-    {name:'Chest Dip (assisted / pain-free depth)', sets:3, reps:'10', group:'Superset 4', swap:{name:'Decline Barbell Press', bar:true}},
-    {name:'Seated Cable Row', sets:3, reps:'12', group:'Superset 4'},
-    {name:'DB Pullover', sets:3, reps:'15', group:'Finisher'},
-    {name:'Cable Wood Chop', sets:3, reps:'12 / side', group:'Core'},
-    {name:'Plank', sets:3, reps:'40s', load:'bw', count:'sec', group:'Core'},
-  ]},
-  d2:{ label:'Shoulders + Arms', abbr:'SA', type:'lift', warmup:'shoulderarm', cooldown:COOLDOWN, exercises:[
-    {name:'Landmine Press (pain-free height)', sets:4, reps:'6–8', group:'Shoulders'},
-    {name:'DB Lateral Raise', sets:4, reps:'12–15', group:'Shoulders'},
-    {name:'Rear Delt Fly', sets:4, reps:'12–15', group:'Shoulders'},
-    {name:'Neutral-Grip DB Shoulder Press', sets:3, reps:'10', group:'Shoulders', swap:{name:'Barbell Overhead Press', bar:true}},
+    {name:'Neutral-Grip Pull-Up', sets:4, reps:'6–8', group:'Superset 1'},
+    {name:'Incline DB Press', sets:3, reps:'8–10', group:'Superset 2', swap:{name:'Incline Barbell Press', bar:true}},
+    {name:'Barbell Row', sets:3, reps:'8–10', group:'Superset 2', bar:true, swap:{name:'Bent-Over DB Row', bar:false}},
+    {name:'DB Lateral Raise', sets:3, reps:'12–15', group:'Delt superset'},
+    {name:'Rear Delt Fly', sets:3, reps:'12–15', group:'Delt superset'},
     {name:'EZ-Bar Curl', sets:4, reps:'8–10', group:'Arm superset 1'},
     {name:'Close-Grip Bench', sets:4, reps:'8–10', group:'Arm superset 1', bar:true},
-    {name:'Incline DB Curl', sets:3, reps:'10–12', group:'Arm superset 2'},
-    {name:'Skull Crusher', sets:3, reps:'10–12', group:'Arm superset 2'},
-    {name:'Concentration Curl', sets:3, reps:'12', group:'Arm superset 3'},
-    {name:'Rope Pushdown', sets:3, reps:'12–15', group:'Arm superset 3'},
-    {name:'V-Sit Halo', sets:3, reps:'10 / side', group:'Core'},
-    {name:'Overhead Carry (pain-free overhead)', sets:3, reps:'30 steps', count:'steps', group:'Core'},
+    {name:'Cable Wood Chop', sets:2, reps:'12 / side', group:'Core · finish'},
   ]},
-  d3:{ label:'Legs', abbr:'LEG', type:'lift', warmup:'legs', cooldown:COOLDOWN, exercises:[
-    {name:'Goblet Squat (core primer)', sets:3, reps:'10', group:'Primary · squat & hinge'},
-    {name:'Box Squat (dumbbell, pain-free depth)', sets:5, reps:'6–10', group:'Primary · squat & hinge', swap:{name:'Hack Squat (barbell, pain-free depth)', bar:true}},
-    {name:'Romanian Deadlift', sets:4, reps:'8–10', bar:true, group:'Primary · squat & hinge'},
-    {name:'Reverse Lunge / Step-Up', sets:3, reps:'12 / side', group:'Quads & hamstrings'},
-    {name:'Leg Press (comfortable range)', sets:4, reps:'12', group:'Quads & hamstrings'},
-    {name:'Leg Curl', sets:4, reps:'12', group:'Quads & hamstrings'},
-    {name:'Standing Calf Raise', sets:5, reps:'15–20', group:'Calves'},
-    {name:'Seated Calf Raise', sets:4, reps:'20', group:'Calves'},
-    {name:'Farmers Carry', sets:3, reps:'40 steps', count:'steps', group:'Core'},
-    {name:'Copenhagen Plank Press-Out (short-lever, pain-free)', sets:3, reps:'8 / side', load:'bw', group:'Core'},
-    {name:'Single-Arm KB Deadlift', sets:3, reps:'8 / side', group:'Accessory · optional'},
+  la:{ label:'Lower A', abbr:'LA', type:'lift', note:'Squat + hinge heavy', warmup:'legs', cooldown:COOLDOWN, exercises:[
+    {name:'Goblet Squat (core primer)', sets:2, reps:'10', group:'Primary · squat & hinge'},
+    {name:'Box Squat (dumbbell, pain-free depth)', sets:4, reps:'6–10', group:'Primary · squat & hinge', swap:{name:'Hack Squat (barbell, pain-free depth)', bar:true}},
+    {name:'Romanian Deadlift', sets:3, reps:'8–10', bar:true, group:'Primary · squat & hinge', evenWeek:{name:'Trap-Bar Deadlift (moderate)', sets:3, reps:'5', bar:true}},
+    {name:'Leg Press (comfortable range)', sets:3, reps:'10–12', group:'Quads & hamstrings'},
+    {name:'Leg Curl', sets:3, reps:'12', group:'Quads & hamstrings'},
+    {name:'Standing Calf Raise', sets:4, reps:'15–20', group:'Calves'},
+    {name:'Farmers Carry', sets:3, reps:'40 steps', count:'steps', group:'Carry'},
   ]},
-  d4:{ label:'Chest + Back · Pump', abbr:'CBP', type:'lift', note:'Antagonist supersets · pump', warmup:'pushpull', cooldown:COOLDOWN, exercises:[
-    {name:'Incline DB Press', sets:4, reps:'10', group:'Superset 1', swap:{name:'Incline Barbell Press', bar:true}},
-    {name:'Neutral-Grip Pull-Up', sets:4, reps:'8–10', group:'Superset 1'},
-    {name:'Neutral-Grip DB Bench', sets:3, reps:'12', group:'Superset 2', swap:{name:'Barbell Bench Press', bar:true}},
-    {name:'Chest-Supported Row', sets:3, reps:'12', group:'Superset 2'},
-    {name:'Cable Fly', sets:3, reps:'15', group:'Superset 3'},
-    {name:'Lat Pulldown (neutral)', sets:3, reps:'15', group:'Superset 3'},
-    {name:'Trap-Bar Deadlift (moderate)', sets:3, reps:'5', bar:true, group:'Heavy pull'},
-    {name:'Half-Bench Single-Arm Paused Press', sets:3, reps:'8 / side', group:'Core'},
-    {name:'Bear Crawl', sets:3, reps:'30 steps', count:'steps', group:'Core'},
-    {name:'KB Gorilla Row', sets:3, reps:'10 / side', group:'Accessory · optional'},
+  erg:{ label:'Long Row + Arm Pump', abbr:'ROW', type:'cardio', note:'Steady row · arms · delts', exercises:[
+    {name:'Cable Lateral Raise', sets:3, reps:'15', group:'Delts'},
+    {name:'Concentration Curl', sets:3, reps:'12', group:'Arm superset 1'},
+    {name:'Overhead DB Extension', sets:3, reps:'12', group:'Arm superset 1'},
   ]},
-  d5:{ label:'Shoulders + Arms · Pump', abbr:'SAP', type:'lift', note:'Detail / pump', warmup:'shoulderarm', cooldown:COOLDOWN, exercises:[
-    {name:'Neutral-Grip DB Shoulder Press', sets:4, reps:'10', group:'Shoulders', swap:{name:'Barbell Overhead Press', bar:true}},
+  ub:{ label:'Upper B', abbr:'UB', type:'lift', note:'Shoulders + arms focus', warmup:'shoulderarm', cooldown:COOLDOWN, exercises:[
+    {name:'Landmine Press (pain-free height)', sets:3, reps:'6–8', group:'Superset 1'},
+    {name:'Lat Pulldown (neutral)', sets:3, reps:'10–12', group:'Superset 1'},
     {name:'DB Lateral Raise', sets:3, reps:'12–15', group:'Giant set'},
     {name:'Rear Delt Raise', sets:3, reps:'12–15', group:'Giant set'},
     {name:'Cable Lateral Raise', sets:3, reps:'12–15', group:'Giant set'},
-    {name:'EZ-Bar Curl', sets:4, reps:'10', group:'Biceps superset'},
-    {name:'Hammer Curl', sets:4, reps:'12', group:'Biceps superset'},
-    {name:'Overhead DB Extension', sets:4, reps:'12', group:'Triceps superset'},
-    {name:'Rope Pushdown', sets:4, reps:'12', group:'Triceps superset'},
-    {name:'Wrist Curl', sets:3, reps:'20', group:'Forearms'},
-    {name:'Reverse Curl', sets:3, reps:'15', group:'Forearms'},
-    {name:'V-Sit Kick-Out', sets:3, reps:'12', load:'bw', group:'Core'},
-    {name:'Farmers Carry', sets:3, reps:'40 steps', count:'steps', group:'Core'},
+    {name:'Incline DB Curl', sets:3, reps:'10–12', group:'Arm superset 1'},
+    {name:'Skull Crusher', sets:3, reps:'10–12', group:'Arm superset 1'},
+    {name:'Hammer Curl', sets:3, reps:'12', group:'Arm superset 2'},
+    {name:'Rope Pushdown', sets:3, reps:'12', group:'Arm superset 2'},
+    {name:'Cable Fly', sets:2, reps:'12–15', group:'Superset 3'},
+    {name:'Chest-Supported Row', sets:2, reps:'12–15', group:'Superset 3'},
+    {name:'V-Sit Halo', sets:2, reps:'10 / side', group:'Core · finish'},
   ]},
-  d6:{ label:'Optional · Core & Cardio', abbr:'CDO', type:'cardio', note:'Recovery / weak points', warmup:'general', exercises:[
-    {name:'Plank', sets:3, reps:'45s', load:'bw', count:'sec', group:'Core circuit'},
-    {name:'V-Sit Halo', sets:3, reps:'10 / side', group:'Core circuit'},
-    {name:'Cable Wood Chop', sets:3, reps:'12 / side', group:'Core circuit'},
-    {name:'Farmers Carry', sets:3, reps:'40 steps', count:'steps', group:'Core circuit'},
-    {name:'Bear Crawl', sets:3, reps:'30 steps', count:'steps', group:'Core circuit'},
-    {name:'Copenhagen Plank Press-Out (short-lever, pain-free)', sets:3, reps:'8 / side', load:'bw', group:'Core circuit'},
-    {name:'KB Plank Row', sets:3, reps:'10 / side', group:'Accessory · optional'},
-    {name:'Single-Arm KB Gorilla Row', sets:3, reps:'10 / side', group:'Accessory · optional'},
-  ], cardio:[{name:'Low-Impact Cardio (walk / bike / elliptical)', target:'25–40 min'}] },
+  lb:{ label:'Lower B', abbr:'LB', type:'lift', note:'Lighter legs · delts · core', warmup:'legs', cooldown:COOLDOWN, exercises:[
+    {name:'Reverse Lunge / Step-Up', sets:3, reps:'10 / side', group:'Legs'},
+    {name:'Leg Extension', sets:3, reps:'15', group:'Legs'},
+    {name:'Leg Curl', sets:3, reps:'12–15', group:'Legs'},
+    {name:'Seated Calf Raise', sets:3, reps:'20', group:'Calves'},
+    {name:'DB Lateral Raise', sets:3, reps:'15', group:'Delt superset'},
+    {name:'Rear Delt Fly', sets:3, reps:'15', group:'Delt superset'},
+    {name:'Copenhagen Plank Press-Out (short-lever, pain-free)', sets:2, reps:'8 / side', load:'bw', group:'Core'},
+    {name:'Plank', sets:2, reps:'40s', load:'bw', count:'sec', group:'Core'},
+  ]},
+  thr:{ label:'Threshold Erg', abbr:'THR', type:'cardio', note:'Hard row', exercises:[
+    {name:'Plank', sets:2, reps:'45s', load:'bw', count:'sec', group:'Core · optional'},
+    {name:'Cable Wood Chop', sets:2, reps:'12 / side', group:'Core · optional'},
+  ]},
   rest:{ label:'Rest Day', abbr:'—', type:'rest', exercises:[] },
 };
 
@@ -631,7 +639,7 @@ const GROUP_METHODS = {
   'Arm superset 1':'alt','Arm superset 2':'alt','Arm superset 3':'alt',
   'Giant set':'giant',
   'Biceps superset':'compound','Triceps superset':'compound','Forearms':'compound',
-  'Core':'alt','Core circuit':'circuit',
+  'Core':'alt','Core circuit':'circuit','Delt superset':'alt','Core · optional':'circuit',
 };
 function methodCaption(group){
   switch(GROUP_METHODS[group]){
@@ -663,10 +671,117 @@ function restLabel(ex){
   return '45–60s';
 }
 // ISO weekday 1=Mon ... 7=Sun
-const SCHEDULE = {1:'d1',2:'d2',3:'d3',4:'d4',5:'d5',6:'d6',7:'rest'};
+const SCHEDULE = {1:'ua',2:'la',3:'erg',4:'ub',5:'lb',6:'thr',7:'rest'};
 const WEEKDAY_NAMES = {1:'Mon',2:'Tue',3:'Wed',4:'Thu',5:'Fri',6:'Sat',7:'Sun'};
-const PROGRAM_NAME = 'Modified Arnold Split · Recomp';
-const PROGRAM_BLURB = 'Five training days plus an optional sixth, built on the classic Arnold split and adapted around your left hip and right shoulder. Each day opens with a mobility warm-up tuned to that session and closes with an optional cool-down, and carries a dedicated core block. Each section says how to run it — supersets alternate the pair, straight sets rest between. Run the big compounds to about 1–2 reps in reserve, and let pain-free range win over the prescribed depth or height.';
+const PROGRAM_NAME = 'Ironlog + Erg';
+const PROGRAM_BLURB = 'Four lifting days and two erg days, about 60 minutes each, Sunday off. Arms and delts get trained four days a week. A long steady row on Wednesday, threshold intervals on Saturday, and 10 easy minutes after both upper days. The hinge on Lower A rotates weekly, deloads land every fourth week, and every erg pace comes from your 20-minute test. Run the big compounds to about 1–2 reps in reserve, and let pain-free range win over the prescribed depth or height.';
+
+/* ---------- Erg program: 12-week block, then a reset deload, then repeat ---------- */
+const PROGRAM_START = '2026-10-26';      // Monday of week 1 (re-entry week is the 7 days before)
+const ERG_WEEKS = {                       // Wednesday long row (min) + Saturday session
+  1:{wed:35, sat:{kind:'threshold', label:'3 × 6 min, 3 min rest'}},
+  2:{wed:40, sat:{kind:'test', label:'20-minute test'}},
+  3:{wed:45, sat:{kind:'threshold', label:'4 × 8 min, 3 min rest'}},
+  4:{wed:30, sat:{kind:'threshold', label:'2 × 8 min, 3 min rest'}, deload:true},
+  5:{wed:45, sat:{kind:'threshold', label:'3 × 10 min, 3 min rest'}},
+  6:{wed:50, sat:{kind:'threshold', label:'4 × 10 min, 2 min rest'}},
+  7:{wed:50, sat:{kind:'threshold', label:'2 × 15 min, 4 min rest'}},
+  8:{wed:35, sat:{kind:'threshold', label:'3 × 8 min, 3 min rest'}, deload:true},
+  9:{wed:50, sat:{kind:'threshold', label:'4 × 10 min, 2 min rest'}},
+  10:{wed:50, sat:{kind:'threshold', label:'3 × 12 min, 3 min rest'}},
+  11:{wed:50, sat:{kind:'threshold', label:'2 × 20 min, 4 min rest'}},
+  12:{wed:40, sat:{kind:'test', label:'20-minute test'}},
+};
+const REENTRY_SCHEDULE = SCHEDULE;
+const REENTRY_ERG = {erg:[20,25], thr:[25,30]};
+const BUSY_SCHEDULE = {1:'ua',2:'la',3:'erg',4:'ub',5:'rest',6:'thr',7:'rest'};
+
+function dayNum(ds){ return Math.round(new Date(ds+'T12:00:00').getTime()/86400000); }
+function addDays(ds, n){ const d=new Date(ds+'T12:00:00'); d.setDate(d.getDate()+n); return localYmd(d); }
+function weekMonday(ds){ return localYmd(startOfWeek(new Date(ds+'T12:00:00'))); }
+function progInfo(dateStr){
+  const ds = dateStr || todayKey();
+  const diff = dayNum(ds) - dayNum(PROGRAM_START);
+  if(diff < -7) return null;                                   // before the program
+  if(diff < 0) return {phase:'reentry', week:0, cycle:0, deload:false, title:'Re-entry week'};
+  const w = Math.floor(diff/7) + 1;
+  const mk = (wk,cy)=>{ const p=ERG_WEEKS[wk]; return {phase:'block', week:wk, cycle:cy, deload:!!p.deload, plan:p,
+    title:'Week '+wk+' of 12'+(cy?' · round '+(cy+1):'')+(p.deload?' · deload':'')}; };
+  if(w <= 12) return mk(w, 0);
+  const idx = w - 13, cycle = Math.floor(idx/13) + 1, pos = idx % 13;
+  if(pos === 0) return {phase:'reset', week:13, cycle, deload:true, plan:ERG_WEEKS[4], title:'Reset deload'};
+  return mk(pos, cycle);
+}
+function scheduleFor(ds){
+  if(isBusy(ds)) return BUSY_SCHEDULE;
+  const info = progInfo(ds);
+  return (info && info.phase==='reentry') ? REENTRY_SCHEDULE : SCHEDULE;
+}
+function isBusy(ds){ return !!state.busyWeek && weekMonday(ds||todayKey())===state.busyWeek; }
+function isShortSleep(ds){ return !!state.shortSleepDate && state.shortSleepDate===(ds||todayKey()); }
+
+/* Which erg session a template gets on a given date (null = no row). */
+function ergPlanFor(key, ds){
+  const info = progInfo(ds); if(!info) return null;
+  let e = null;
+  if(info.phase==='reentry'){
+    const m = REENTRY_ERG[key]; if(m) e = {kind:'steady', min:m[0], max:m[1], easy:true};
+  } else {
+    const p = info.plan;
+    if(key==='ua' || key==='ub') e = {kind:'steady', min:10, max:10, easy:true, tail:true};
+    else if(key==='erg') e = {kind:'steady', min:p.wed, max:p.wed};
+    else if(key==='thr') e = {kind:p.sat.kind, label:p.sat.label};
+  }
+  if(isBusy(ds)){
+    e = (key==='erg' || key==='thr') ? {kind:'steady', min:20, max:20, easy:true} : null;
+  }
+  if(e && isShortSleep(ds)){
+    if(e.kind!=='steady') e = {kind:'steady', min:20, max:20, easy:true, sleepSwap:true};
+    else { e.min = Math.min(e.min,20); e.max = Math.min(e.max,20); e.easy = true; e.sleep = true; }
+  }
+  return e;
+}
+function fmtSplit(sec){
+  if(!(sec>0)) return '—';
+  const m = Math.floor(sec/60), s = sec - m*60;
+  return m+':'+(s<10?'0':'')+s.toFixed(1);
+}
+function parseSplit(str){
+  const t = String(str||'').trim(); if(!t) return 0;
+  const m = t.match(/^(\d{1,2})[:.](\d{1,2}(?:\.\d)?)$/); if(!m) return 0;
+  const sec = (+m[1])*60 + parseFloat(m[2]);
+  return (sec>=75 && sec<=240) ? sec : 0;
+}
+function paceRange(add1, add2){ const t = state.testSplit; return t ? fmtSplit(t+add1).replace(/\.0$/,'')+'–'+fmtSplit(t+add2).replace(/\.0$/,'')+' /500m' : ''; }
+function ergTitle(e){ return e.kind==='test' ? '20-minute test' : e.kind==='threshold' ? 'Threshold intervals' : (e.easy ? 'Easy steady state' : 'Steady state'); }
+function ergTargetText(e){
+  if(e.kind==='steady' && e.extra) return 'Any length · '+(paceRange(18,22) || 'easy')+' · rate 18–20';
+  if(e.kind==='steady'){
+    const mins = e.min===e.max ? e.min+' min' : e.min+'–'+e.max+' min';
+    const pace = paceRange(18,22) || 'by feel, nose breathing';
+    return mins+' · '+(e.easy && !state.testSplit ? 'easy' : pace)+' · rate 18–20';
+  }
+  if(e.kind==='threshold') return e.label+' · '+(paceRange(3,6) || 'by feel, about your 40-min pace')+' · rate '+(state.testSplit?'24–26':'24');
+  return 'Even split, all-out · rate 26–30';
+}
+function ergTip(e){
+  if(e.sleepSwap) return 'Short on sleep, so no threshold today. Row 20 easy minutes or skip it.';
+  if(e.extra) return 'An extra row, not part of today’s plan. Keep it easy unless the plan says otherwise.';
+  if(e.tail) return 'Easy cool-down row after the lift: rate 18–20, conversational. It adds base without costing recovery.';
+  if(e.kind==='steady') return 'Same split start to finish; if it fades late, you started too fast. Drag 110–125. If the catch pinches your hip, stop an inch short of full compression.';
+  if(e.kind==='threshold') return 'Warm up 10 min easy. Hold one split across every rep; the last rep no more than a second faster. Cool down 5–10 min.';
+  return 'Warm up 10 min with three 20-stroke pushes. Open 1–2 sec slower than goal, settle, then empty the tank over the last 4 min. Your average split here resets every erg pace.';
+}
+function makeErg(e){
+  return {kind:e.kind, title:ergTitle(e), target:ergTargetText(e), tip:ergTip(e), min:e.min||0, max:e.max||0,
+    tmin:'', tsec:'', meters:'', rate:'', hr:'', note:'', skipped:false};
+}
+function ergSeconds(g){ return (Number(g.tmin)||0)*60 + (Number(g.tsec)||0); }
+function ergSplitSec(g){ const t=ergSeconds(g), m=Number(g.meters)||0; return (t>0 && m>0) ? t*500/m : 0; }
+function ergLogged(g){ return g && !g.skipped && (Number(g.meters)>0 || ergSeconds(g)>0); }
+function fmtRange(ds){ const a=new Date(ds+'T12:00:00'), b=new Date(addDays(ds,6)+'T12:00:00');
+  const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return M[a.getMonth()]+' '+a.getDate()+'–'+(a.getMonth()===b.getMonth()?'':M[b.getMonth()]+' ')+b.getDate(); }
 
 /* ---------- App state ---------- */
 const state = {
@@ -676,6 +791,10 @@ const state = {
   lastDeloadWeek:null,   // Monday (ymd) of the last deload week
   deloadClockStart:null, // Monday (ymd) when the deload countdown starts (ignores earlier weeks)
   deloadDismissed:null,  // Monday (ymd) of the week the nudge was dismissed
+  testSplit:0,           // 20-min test average split, seconds per 500m
+  testDate:null,
+  busyWeek:null,         // Monday (ymd) of a week switched to the busy-week floor
+  shortSleepDate:null,   // date flagged as under 6 hours of sleep
   session:null,      // active session object
   sessions:[],       // completed sessions cache
   pickedDay:null,    // override of today's template key
@@ -694,7 +813,8 @@ const state = {
 
 /* ---------- Helpers ---------- */
 function isoWeekday(d){ const w=d.getDay(); return w===0?7:w; }
-function todayKey(){ return new Date().toISOString().slice(0,10); }
+function todayKey(){ return localYmd(new Date()); }
+function localYmd(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function fmtClock(sec){
   sec=Math.max(0,Math.floor(sec));
   const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
@@ -761,7 +881,7 @@ function barbellHTML(weight){
 
 /* ---------- Session building ---------- */
 function templateKeyForToday(){
-  return state.pickedDay || SCHEDULE[isoWeekday(new Date())];
+  return state.pickedDay || scheduleFor(todayKey())[isoWeekday(new Date())];
 }
 function lastNoteFor(name, excludeId){
   const sorted=state.sessions.slice().sort((a,b)=>b.id-a.id);
@@ -778,7 +898,7 @@ function lastSetsFor(name, excludeId){
   }
   return null;
 }
-function saveSettings(){ return Store.set('settings',{unit:state.unit, deload:state.deload, lastDeloadWeek:state.lastDeloadWeek, deloadClockStart:state.deloadClockStart, deloadDismissed:state.deloadDismissed}); }
+function saveSettings(){ return Store.set('settings',{unit:state.unit, deload:state.deload, lastDeloadWeek:state.lastDeloadWeek, deloadClockStart:state.deloadClockStart, deloadDismissed:state.deloadDismissed, testSplit:state.testSplit, testDate:state.testDate, busyWeek:state.busyWeek, shortSleepDate:state.shortSleepDate}); }
 
 /* ---------- Backup / Restore ---------- */
 async function exportData(){
@@ -817,19 +937,31 @@ function trainingWeeksSinceDeload(){
   state.sessions.forEach(s=>{ const wk=ymd(startOfWeek(new Date(s.date+'T12:00:00'))); if(wk>anchor) weeks.add(wk); });
   return weeks.size;
 }
-function deloadReminderDue(){ return !state.deload && trainingWeeksSinceDeload()>=5 && state.deloadDismissed!==thisWeekKey(); }
-function newSession(key){
+function deloadReminderDue(){ if(progInfo(todayKey())) return false;   // the program schedules its own deloads
+  return !state.deload && trainingWeeksSinceDeload()>=5 && state.deloadDismissed!==thisWeekKey(); }
+function newSession(key, dateStr){
   const tpl = DAYS[key];
-  const s = { id: Date.now(), date: todayKey(), dayKey:key, dayLabel:tpl.label, type:tpl.type, deload:!!state.deload,
+  const date = dateStr || todayKey();
+  const info = progInfo(date);
+  const reentry = !!(info && info.phase==='reentry');
+  const progDeload = !!(info && info.deload);
+  const sleep = isShortSleep(date);
+  const s = { id: Date.now(), date, dayKey:key, dayLabel:tpl.label, type:tpl.type, deload:!!state.deload || progDeload,
+    progWeek: info ? info.week : null, progPhase: info ? info.phase : null, shortSleep: sleep,
     started: Date.now(), elapsed:0, warmup:[], cooldown:[], exercises:[], cardio:[] };
   const wv = weekVariantIndex(s.date);
   s.warmupVariant = ['A','B','C'][wv];
   const warr = (tpl.warmup && WARMUPS[tpl.warmup]) ? (WARMUPS[tpl.warmup][wv] || WARMUPS[tpl.warmup][0]) : [];
   warr.forEach(w=> s.warmup.push({name:w.name, target:w.target, done:false}));
   (tpl.cooldown||[]).forEach(w=> s.cooldown.push({name:w.name, target:w.target, done:false}));
-  (tpl.exercises||[]).forEach(ex=>{
-    if(!ex.sets) return; // strength/rep-based entries only
-    const nsets = state.deload ? Math.max(2, Math.round(ex.sets*0.6)) : ex.sets;   // ~40% volume cut on deloads
+  const evenWeek = !!(info && !reentry && info.week%2===0);
+  (tpl.exercises||[]).forEach(base=>{
+    if(!base.sets) return; // strength/rep-based entries only
+    const ex = (base.evenWeek && evenWeek) ? Object.assign({}, base, base.evenWeek) : base;   // weekly hinge rotation
+    let nsets = ex.sets;
+    if(state.deload) nsets = Math.max(2, Math.round(ex.sets*0.6));   // manual deload: ~40% fewer sets
+    else if(progDeload) nsets = Math.max(2, ex.sets-1);              // program deload: one fewer set
+    if(reentry || sleep) nsets = Math.min(nsets, 2);                 // re-entry week / short sleep
     const sets=[];
     for(let i=0;i<nsets;i++) sets.push({weight:'',reps:'',done:false});
     const o={name:ex.name, target:nsets+' × '+ex.reps, group:ex.group||'', reps:ex.reps,
@@ -839,6 +971,8 @@ function newSession(key){
   });
   (tpl.cardio||[]).forEach(c=> s.cardio.push({name:c.name, target:c.target||'', dur:0, dist:'', running:false, runStart:0}));
   if(tpl.finisher) s.cardio.push({name:tpl.finisher.name, target:tpl.finisher.target, dur:0, dist:'', running:false, runStart:0});
+  const ep = ergPlanFor(key, date);
+  if(ep) s.erg = makeErg(ep);
   return s;
 }
 
@@ -1003,11 +1137,10 @@ function pickModal(title, options){ // options: [{label,value}]
 
 /* ---------- Backfill a past workout on a chosen date ---------- */
 async function addWorkoutOn(dateStr){
-  const opts=['d1','d2','d3','d4','d5','d6'].map(k=>({label:DAYS[k].label, value:k}));
+  const opts=['ua','la','erg','ub','lb','thr'].map(k=>({label:DAYS[k].label, value:k}));
   const key=await pickModal('Add a workout for '+dateStr, opts);
   if(!key) return;
-  const s=newSession(key);
-  s.date=dateStr;
+  const s=newSession(key, dateStr);
   s.id=new Date(dateStr+'T12:00:00').getTime() + Math.floor(Math.random()*1000);
   s.started=null; s.totalDur=0;
   state.sessions.push(s);
@@ -1032,14 +1165,27 @@ function render(){
 }
 
 /* ===== TODAY ===== */
+function progStripHTML(ds){
+  const info=progInfo(ds); if(!info) return '';
+  let sub;
+  if(isBusy(ds)) sub='Busy week: Upper A, Lower A, Upper B and two 20-minute easy rows. Everything else is off.';
+  else if(info.phase==='reentry') sub='Easy week back: 2 sets per lift at about 80% of your usual weights. Sleep comes first.';
+  else if(info.phase==='reset') sub='Deload after the test: one fewer set per lift, shorter rows. The next round starts Monday.';
+  else if(info.plan.sat.kind==='test') sub=info.week===2 ? 'Test week: Saturday’s 20-minute test sets every erg pace.' : 'Retest week: Saturday’s 20-minute test resets your paces.';
+  else if(info.deload) sub='Deload week: one fewer set per lift and shorter rows.';
+  else sub='Long row Wednesday, threshold Saturday, 10 easy minutes after both upper days.';
+  return '<div class="panel progstrip"><div class="row spread"><span class="ps-week">'+esc(info.title)+'</span><span class="ps-dates">'+esc(fmtRange(weekMonday(ds)))+'</span></div><div class="ps-sub">'+esc(sub)+'</div></div>';
+}
 function renderToday(){
   const v=$('#view');
   if(state.session){ renderActive(v); return; }
 
+  const today=todayKey();
   const key=templateKeyForToday();
   const tpl=DAYS[key];
   const wd=WEEKDAY_NAMES[isoWeekday(new Date())];
   const isRest = tpl.type==='rest';
+  const ep = isRest ? null : ergPlanFor(key, today);
 
   let head = '<div class="panel dayhead">'+
     '<div class="row spread"><span class="eyebrow">'+wd+' · Today</span>'+
@@ -1047,17 +1193,17 @@ function renderToday(){
     '<div class="h-big">'+esc(tpl.label)+'</div>';
   if(!isRest){
     const lifts=(tpl.exercises||[]).filter(e=>e.sets).length;
-    const hasCardio=(tpl.cardio&&tpl.cardio.length)||tpl.finisher;
-    let n = lifts ? lifts+' exercises' : 'cardio + mobility';
-    if(lifts && hasCardio) n += ' + cardio';
+    let n = lifts ? lifts+' exercises' : (ep ? 'Rowing only' : 'cardio + mobility');
+    if(lifts && ep) n += ' + erg';
     head += '<div class="muted" style="margin-top:6px;font-size:14px">'+n+'</div>';
+    if(ep) head += '<div class="ergline"><b>Erg</b>'+esc(ergTitle(ep))+' · '+esc(ergTargetText(ep))+'</div>';
   } else {
     head += '<div class="muted" style="margin-top:6px;font-size:14px">Recovery matters as much as the work. Pick a session below if you want to train anyway.</div>';
   }
   head+='</div>';
 
   // day picker
-  const order=['d1','d2','d3','d4','d5','d6','rest'];
+  const order=['ua','la','erg','ub','lb','thr','rest'];
   let chips='<div class="changebar">';
   order.forEach(k=>{ chips+='<button class="chip '+(k===key?'on':'')+'" data-pick="'+k+'">'+esc(DAYS[k].label)+'</button>'; });
   chips+='</div>';
@@ -1065,6 +1211,14 @@ function renderToday(){
   let action='';
   if(!isRest){
     action='<div style="margin-top:16px"><button class="btn" data-start="'+key+'">Start '+esc(tpl.label)+'</button></div>';
+  }
+
+  let sleepRow='';
+  if(!isRest && progInfo(today)){
+    const on=isShortSleep(today);
+    sleepRow='<div class="panel sleeprow"><div class="row spread">'+
+      '<div><div style="font-weight:600">Slept under 6 hours?</div><div class="muted" style="font-size:13px">Lifts drop to 2 sets and the row stays easy</div></div>'+
+      '<div class="toggle"><button data-sleep="off" class="'+(on?'':'on')+'">NO</button><button data-sleep="on" class="'+(on?'on':'')+'">YES</button></div></div></div>';
   }
 
   let deloadBanner='';
@@ -1081,7 +1235,7 @@ function renderToday(){
       '<button class="db-btn ghost" data-deload-snooze>Not now</button></div></div>';
   }
 
-  v.innerHTML = head + deloadBanner + chips + action;
+  v.innerHTML = progStripHTML(today) + head + deloadBanner + sleepRow + chips + action;
 }
 
 function countLabel(c){ return c==='sec'?'Secs':c==='steps'?'Steps':'Reps'; }
@@ -1107,10 +1261,14 @@ function renderActive(v){
   let html='<div class="row spread" style="margin-top:6px"><div><span class="eyebrow">'+eyebrow+'</span><div class="h-big">'+esc(s.dayLabel)+'</div></div>'+
     '<button class="btn ghost sm" data-discard>'+(state.editing?'Cancel':'Discard')+'</button></div>';
   if((s.warmup||[]).length){ html+='<div id="warmwrap"></div>'; }
+  const ergFirst = !!(s.erg && s.type==='cardio');     // row first on erg days, lift first on lifting days
+  if(ergFirst){ html+='<div id="ergwrap"></div>'; }
   if(s.exercises.length){
     if(!state.editing) html+='<div class="cue">Stop ~1–2 reps shy of failure on the compounds · pain-free range only</div>';
     html+='<div class="exlist" id="exlist"></div>';
   }
+  if(s.erg && !ergFirst){ html+='<div id="ergwrap"></div>'; }
+  if(!s.erg){ html+='<div style="margin-top:14px"><button class="btn ghost" data-adderg>+ Log a row</button></div>'; }
   if(s.cardio.length){
     html+='<div id="cardiolist" style="margin-top:'+(s.exercises.length?'4px':'14px')+'"></div>';
   }
@@ -1131,6 +1289,7 @@ function renderActive(v){
       exWrap.appendChild(buildExercise(ex,i));
     });
   }
+  const ew=$('#ergwrap'); if(ew) ew.appendChild(buildErgCard(s.erg));
   const cWrap=$('#cardiolist');
   if(cWrap){ s.cardio.forEach((c,i)=> cWrap.appendChild(buildCardio(c,i))); }
   const cl=$('#coolwrap'); if(cl) cl.appendChild(prepBlock('Cool-down · optional', s.cooldown, 'cool', false));
@@ -1211,6 +1370,36 @@ function buildSetRow(ex, exIdx, si){
   return row;
 }
 
+function buildErgCard(g){
+  const node=el('<div class="panel ergcard'+(g.skipped?' skipped':'')+'"></div>');
+  const f=(k,label,ph,mode)=>'<label>'+label+'<input class="fld" data-erg="'+k+'" inputmode="'+mode+'" placeholder="'+ph+'" value="'+esc(g[k]||'')+'"></label>';
+  node.innerHTML=
+    '<div class="ex-head"><div><div class="ex-name">Erg · '+esc(g.title)+'</div><div class="ex-target">'+esc(g.target)+'</div></div>'+
+      '<button class="skipbtn" data-ergskip>'+(g.skipped?'Skipped':'Skip')+'</button></div>'+
+    '<div class="ergbody">'+
+      '<div class="ergtip">'+esc(g.tip)+'</div>'+
+      '<div class="erggrid">'+
+        f('tmin','Minutes',g.max?String(g.max):'0','numeric')+
+        f('tsec','Seconds','00','numeric')+
+        f('meters','Meters','0','numeric')+
+        f('rate','Rate','spm','numeric')+
+        f('hr','Avg HR','bpm','numeric')+
+        '<div class="ergsplit">Avg split<span data-ergsplit>'+fmtSplit(ergSplitSec(g))+'</span></div>'+
+      '</div>'+
+      '<textarea class="note" data-ergnote placeholder="Notes — drag, how it felt, hip, ribs…">'+esc(g.note||'')+'</textarea>'+
+    '</div>';
+  node.querySelectorAll('[data-erg]').forEach(inp=>{
+    inp.addEventListener('input', ()=>{
+      g[inp.getAttribute('data-erg')]=inp.value;
+      const sp=node.querySelector('[data-ergsplit]'); if(sp) sp.textContent=fmtSplit(ergSplitSec(g));
+      saveSessionSoon();
+    });
+  });
+  const nt=node.querySelector('[data-ergnote]');
+  nt.addEventListener('input', ()=>{ g.note=nt.value; saveSessionSoon(); });
+  return node;
+}
+
 function buildCardio(c, i){
   const node=el('<div class="cond panel" data-cardio="'+i+'"></div>');
   node.innerHTML=
@@ -1236,10 +1425,44 @@ function buildCardio(c, i){
 }
 
 /* ===== PLAN ===== */
+function programPanelHTML(){
+  const info=progInfo(todayKey());
+  let html='<div class="sec"><span class="eyebrow">Erg paces</span></div>'+
+    '<div class="panel" style="padding:15px 16px;margin-top:8px">'+
+    '<div style="font-weight:600">20-minute test split</div>'+
+    '<div class="muted" style="font-size:13px;margin-top:3px;line-height:1.45">'+
+      (state.testSplit ? 'From your test'+(state.testDate?' on '+esc(state.testDate):'')+'. Logging a test session updates it automatically.'
+                       : 'Not set yet, so rows run by feel. Your test on Saturday, Nov 7 fills this in when you log it, or type a split here.')+'</div>'+
+    '<div class="paceinput"><input class="fld" id="testsplit" inputmode="text" placeholder="1:55.0" value="'+(state.testSplit?fmtSplit(state.testSplit):'')+'">'+
+    '<button class="btn sm" data-testsave>Save split</button></div>';
+  if(state.testSplit){
+    html+='<div class="restguide" style="margin-top:12px">'+
+      '<div><span>Steady state · rate 18–20</span><b>'+esc(paceRange(18,22))+'</b></div>'+
+      '<div><span>Threshold · rate 24–26</span><b>'+esc(paceRange(3,6))+'</b></div></div>';
+  }
+  html+='</div>';
+  if(!info) return html;
+  const cy=info.cycle||0, startOffset = cy ? 13*cy : 0;
+  html+='<div class="sec"><span class="eyebrow">12-week block</span><span class="muted" style="font-size:12px">'+esc(info.title)+'</span></div>'+
+    '<div class="panel" style="padding:8px 10px;margin-top:8px">'+
+    '<div class="wkrow hd"><span>Wk</span><span>Starts</span><span>Wed row</span><span>Saturday</span></div>';
+  for(let w=1; w<=12; w++){
+    const p=ERG_WEEKS[w], start=addDays(PROGRAM_START, 7*(startOffset+w-1));
+    const d=new Date(start+'T12:00:00');
+    const st=p.wed+' min';
+    const now = info.phase==='block' && info.week===w;
+    html+='<div class="wkrow'+(now?' now':'')+(p.deload?' dl':'')+'"><span class="wr-n">'+w+'</span>'+
+      '<span class="wr-d">'+mmdd(d)+'</span><span class="wr-s">'+st+'</span>'+
+      '<span class="wr-t">'+esc(p.sat.label.replace(/, \d min rest/,''))+(p.deload?' · deload':'')+'</span></div>';
+  }
+  html+='</div><div class="muted" style="font-size:12px;margin:8px 2px 0">Plus 10 easy minutes after Upper A and Upper B every week. After week 12: one deload week, then the block repeats at your new test paces.</div>';
+  return html;
+}
 function renderPlan(){
   const v=$('#view');
   let html='<div style="margin-top:6px"><span class="eyebrow">Your program</span><div class="h-big">'+esc(PROGRAM_NAME)+'</div>'+
     '<div class="muted" style="margin-top:6px;font-size:14px">'+esc(PROGRAM_BLURB)+'</div></div>';
+  html+=programPanelHTML();
   html+='<div class="panel" style="padding:15px 16px;margin-top:14px">'+
     '<div class="eyebrow" style="color:var(--text)">Rest guide</div>'+
     '<div class="restguide">'+
@@ -1251,8 +1474,10 @@ function renderPlan(){
       '<div><span>Core circuit</span><b>30–45s</b></div>'+
     '</div></div>';
   html+='<div style="margin-top:16px">';
+  const today=todayKey(), sched=scheduleFor(today), mon=weekMonday(today);
   for(let d=1; d<=7; d++){
-    const key=SCHEDULE[d]; const tpl=DAYS[key];
+    const key=sched[d]; const tpl=DAYS[key];
+    const ep = ergPlanFor(key, addDays(mon, d-1));
     const isRest=tpl.type==='rest';
     html+='<div class="panel planday'+(isRest?' restday':'')+'" data-planday>'+
       '<div class="planday-head" data-toggle>'+
@@ -1275,8 +1500,18 @@ function renderPlan(){
         }
         lastGroup = ex.group || '';
         const t = ex.sets? (ex.sets+' × '+ex.reps) : (ex.target||'');
-        html+='<div class="planex"><span class="pe-name">'+esc(ex.name)+'</span><span class="pe-t">'+esc(t)+'</span></div>';
+        if(ex.evenWeek){
+          const ev=ex.evenWeek;
+          html+='<div class="planex"><span class="pe-name">'+esc(ex.name)+' · odd weeks</span><span class="pe-t">'+esc(t)+'</span></div>';
+          html+='<div class="planex"><span class="pe-name">'+esc(ev.name)+' · even weeks</span><span class="pe-t">'+esc(ev.sets+' × '+ev.reps)+'</span></div>';
+        } else {
+          html+='<div class="planex"><span class="pe-name">'+esc(ex.name)+'</span><span class="pe-t">'+esc(t)+'</span></div>';
+        }
       });
+      if(ep){
+        html+='<div class="grouplbl plan">Erg<span class="gmeth">'+esc(ergTip(ep))+'</span></div>';
+        html+='<div class="planex"><span class="pe-name">'+esc(ergTitle(ep))+'</span><span class="pe-t">'+esc(ergTargetText(ep).split(' · ')[0])+'</span></div>';
+      }
       (tpl.cardio||[]).forEach(c=>{ html+='<div class="planex"><span class="pe-name">'+esc(c.name)+'</span><span class="pe-t">'+esc(c.target||'')+'</span></div>'; });
       if(tpl.finisher) html+='<div class="planex"><span class="pe-name">'+esc(tpl.finisher.name)+'</span><span class="pe-t">'+esc(tpl.finisher.target)+'</span></div>';
       if((tpl.cooldown||[]).length){
@@ -1299,6 +1534,10 @@ function renderPlan(){
     '<div><div style="font-weight:600">Deload week</div><div class="muted" style="font-size:13px">Trims new workouts ~40%. You\'ll be reminded every few weeks</div></div>'+
     '<div class="toggle"><button data-deload-set="off" class="'+(state.deload?'':'on')+'">OFF</button>'+
     '<button data-deload-set="on" class="'+(state.deload?'on':'')+'">ON</button></div></div></div>'+
+    '<div class="panel" style="padding:15px 16px;margin-top:8px"><div class="row spread">'+
+    '<div><div style="font-weight:600">Busy week</div><div class="muted" style="font-size:13px">This week only: Upper A, Lower A, Upper B and two 20-minute easy rows</div></div>'+
+    '<div class="toggle"><button data-busy-set="off" class="'+(isBusy()?'':'on')+'">OFF</button>'+
+    '<button data-busy-set="on" class="'+(isBusy()?'on':'')+'">ON</button></div></div></div>'+
     '<div class="panel" style="padding:15px 16px;margin-top:8px">'+
     '<div style="font-weight:600">Back up &amp; restore</div>'+
     '<div class="muted" style="font-size:13px;margin-top:3px;line-height:1.45">Your log lives only on this device. Save a backup file you can keep, then restore it on a new phone, iPad, or computer.</div>'+
@@ -1321,7 +1560,9 @@ function sessionVolume(s){
 function dayGlyph(dayKey){
   const g={ d1:{e:'\u{1F3CB}\uFE0F',a:'CB'}, d4:{e:'\u{1F3CB}\uFE0F',a:'CBP'},
     d2:{e:'\u{1F4AA}',a:'SA'}, d5:{e:'\u{1F4AA}',a:'SAP'},
-    d3:{e:'\u{1F9B5}',a:'LEG'}, d6:{e:'\u2764\uFE0F',a:'CDO'} };
+    d3:{e:'\u{1F9B5}',a:'LEG'}, d6:{e:'\u{1F6A3}',a:'THR'},
+    ua:{e:'\u{1F3CB}\uFE0F',a:'UA'}, ub:{e:'\u{1F4AA}',a:'UB'}, la:{e:'\u{1F9B5}',a:'LA'}, lb:{e:'\u{1F9B5}',a:'LB'},
+    erg:{e:'\u{1F6A3}',a:'ROW'}, thr:{e:'\u{1F6A3}',a:'THR'} };
   return g[dayKey] || {e:'', a:(DAYS[dayKey]&&DAYS[dayKey].abbr)||'?'};
 }
 function mmdd(d){ return String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0'); }
@@ -1338,6 +1579,16 @@ function sessionDetailBody(s){
     }
     if(ex.note && ex.note.trim()) body+='<div class="histnote">'+esc(ex.note.trim())+'</div>';
   });
+  if(ergLogged(s.erg)){
+    const g=s.erg, parts=[];
+    if(Number(g.meters)) parts.push(Number(g.meters).toLocaleString()+' m');
+    if(ergSeconds(g)) parts.push(fmtClock(ergSeconds(g)));
+    if(ergSplitSec(g)) parts.push(fmtSplit(ergSplitSec(g)));
+    if(g.rate) parts.push('r'+g.rate);
+    if(g.hr) parts.push(g.hr+' bpm');
+    body+='<div class="hist-line"><span>Erg · '+esc(g.title)+'</span><span class="mono">'+esc(parts.join(' · '))+'</span></div>';
+    if(g.note && g.note.trim()) body+='<div class="histnote">'+esc(g.note.trim())+'</div>';
+  }
   (s.cardio||[]).forEach(c=>{
     if(!c.dur && !c.dist) return;
     const parts=[]; if(c.dur) parts.push(fmtDur(c.dur)); if(c.dist) parts.push(c.dist+' '+unitDist());
@@ -1355,13 +1606,13 @@ function sessionDetailBody(s){
 }
 
 /* ===== PROGRESS (per-exercise charts) ===== */
-function catForDay(k){ return (k==='d1'||k==='d4')?'Chest & Back':(k==='d2'||k==='d5')?'Shoulders & Arms':(k==='d3')?'Legs':(k==='d6')?'Core & Cardio':'Other'; }
+function catForDay(k){ return (k==='d1'||k==='d4')?'Chest & Back':(k==='d2'||k==='d5')?'Shoulders & Arms':(k==='d3')?'Legs':(k==='d6'||k==='erg'||k==='thr')?'Core & Cardio':(k==='ua'||k==='ub')?'Chest & Back':(k==='la'||k==='lb')?'Legs':'Other'; }
 function categoryByKeyword(name){
   const n=(name||'').toLowerCase();
   // legs first (specific lower-body terms, incl. "leg curl/press/extension")
   if(/squat|hack|lunge|calf|romanian|\brdl\b|goblet|step-?up|hip thrust|glute|leg press|leg curl|leg extension/.test(n)) return 'Legs';
   // shoulders & arms
-  if(/shoulder press|overhead press|\bohp\b|landmine|lateral raise|rear delt|\bdelt\b|shrug|face pull|arnold press|curl|tricep|pushdown|skull|hammer|forearm|wrist|extension/.test(n)) return 'Shoulders & Arms';
+  if(/close-grip|shoulder press|overhead press|\bohp\b|landmine|lateral raise|rear delt|\bdelt\b|shrug|face pull|arnold press|curl|tricep|pushdown|skull|hammer|forearm|wrist|extension/.test(n)) return 'Shoulders & Arms';
   // chest & back (remaining presses land here; shoulder/leg presses already handled)
   if(/bench|chest|press|fly|flye|row|pull-?up|pull ?up|pulldown|\blat\b|pullover|dip|deadlift/.test(n)) return 'Chest & Back';
   return 'Other';
@@ -1369,16 +1620,38 @@ function categoryByKeyword(name){
 function isCurrentExercise(name){
   for(const k of Object.keys(DAYS)){
     const day=DAYS[k]; if(!day||!day.exercises) continue;
-    for(const ex of day.exercises){ if(ex.name===name || (ex.swap && ex.swap.name===name)) return true; }
+    for(const ex of day.exercises){ if(ex.name===name || (ex.swap && ex.swap.name===name) || (ex.evenWeek && ex.evenWeek.name===name)) return true; }
   }
   return false;
 }
 function exerciseCategory(name){
+  const kw=categoryByKeyword(name); if(kw!=='Other') return kw;   // upper days now mix muscle groups, so go by the movement
   for(const k of Object.keys(DAYS)){
     const day=DAYS[k]; if(!day||!day.exercises) continue;
-    for(const ex of day.exercises){ if(ex.name===name || (ex.swap && ex.swap.name===name)) return catForDay(k); }
+    for(const ex of day.exercises){ if(ex.name===name || (ex.swap && ex.swap.name===name) || (ex.evenWeek && ex.evenWeek.name===name)) return catForDay(k); }
   }
   return categoryByKeyword(name);   // old / renamed names still sort sensibly
+}
+function rowingHTML(){
+  const sow=weekMonday(todayKey());
+  const weeks=[]; for(let i=7;i>=0;i--) weeks.push(addDays(sow,-7*i));
+  const m={}; weeks.forEach(w=>m[w]=0);
+  let any=false;
+  state.sessions.forEach(s=>{ if(!ergLogged(s.erg)) return; const wk=weekMonday(s.date); if(wk in m){ m[wk]+=Number(s.erg.meters)||0; any=true; } });
+  if(state.session && !state.editing && ergLogged(state.session.erg)){ const wk=weekMonday(state.session.date); if(wk in m){ m[wk]+=Number(state.session.erg.meters)||0; any=true; } }
+  if(!any && !state.testSplit) return '';
+  const hi=Math.max(1, ...weeks.map(w=>m[w]));
+  let html='<div class="sec"><span class="eyebrow">Rowing</span></div><div class="panel" style="padding:14px 16px;margin-top:8px">'+
+    '<div class="row spread"><div class="ex-name" style="font-size:16px">Meters per week</div>'+
+    '<div class="ex-target">test split '+(state.testSplit?fmtSplit(state.testSplit):'not set')+'</div></div><div class="chart">';
+  weeks.forEach(w=>{
+    const val=m[w], hgt=val?Math.max(6,Math.round(100*val/hi)):0;
+    html+='<div class="cbar-col"><div class="cbar-val">'+(val?(Math.round(val/100)/10)+'k':'')+'</div>'+
+      '<div class="cbar-track"><div class="cbar-fill row" style="height:'+hgt+'%"></div></div>'+
+      '<div class="cbar-date">'+mmdd(new Date(w+'T12:00:00'))+'</div></div>';
+  });
+  html+='</div><div class="chart-note">logged erg meters · by week starting Monday</div></div>';
+  return html;
 }
 function renderCharts(){
   const v=$('#view');
@@ -1402,8 +1675,10 @@ function renderCharts(){
   const names=Object.keys(byEx);
   let html='<div style="margin-top:6px"><span class="eyebrow">Progress</span><div class="h-big">Exercise trends</div>'+
     '<div class="muted" style="margin-top:6px;font-size:14px">Weight (lb) per session over the last 4 weeks. Tap an exercise for its chart.</div></div>';
+  const rowH=rowingHTML();
+  html+=rowH;
   if(!names.length){
-    html+='<div class="empty"><div class="ic">▲</div>Log some weighted sets and your per-exercise progress charts show up here.</div>';
+    if(!rowH) html+='<div class="empty"><div class="ic">▲</div>Log some weighted sets or erg meters and your progress charts show up here.</div>';
     v.innerHTML=html; return;
   }
   // group by category
@@ -1455,6 +1730,8 @@ function renderHistory(){
   const thisWeek=list.filter(s=> new Date(s.date+'T00:00:00') >= sow);
   const totalVol=list.reduce((a,s)=>a+sessionVolume(s),0);
   const weekVol=thisWeek.reduce((a,s)=>a+sessionVolume(s),0);
+  const metersOf=s=> ergLogged(s.erg) ? (Number(s.erg.meters)||0) : 0;
+  const weekM=thisWeek.reduce((a,s)=>a+metersOf(s),0), totalM=list.reduce((a,s)=>a+metersOf(s),0);
 
   // map date -> session (highest-volume if more than one)
   const byDate={};
@@ -1465,9 +1742,11 @@ function renderHistory(){
     (empty?'<div class="muted" style="margin-top:6px;font-size:14px">Log a session from the Today tab, or tap any past day below to add a workout you already did.</div>':'')+'</div>';
   html+='<div class="stats">'+
     '<div class="panel stat"><div class="num accent">'+list.length+'</div><div class="lbl">Total sessions</div></div>'+
-    '<div class="panel stat"><div class="num">'+thisWeek.length+'<span style="font-size:18px;color:var(--muted)">/5</span></div><div class="lbl">This week</div></div>'+
+    '<div class="panel stat"><div class="num">'+thisWeek.length+'<span style="font-size:18px;color:var(--muted)">/6</span></div><div class="lbl">This week</div></div>'+
     '<div class="panel stat"><div class="num">'+Math.round(weekVol).toLocaleString()+'</div><div class="lbl">Volume this week ('+state.unit+')</div></div>'+
     '<div class="panel stat"><div class="num">'+Math.round(totalVol).toLocaleString()+'</div><div class="lbl">Total volume ('+state.unit+')</div></div>'+
+    '<div class="panel stat"><div class="num">'+weekM.toLocaleString()+'</div><div class="lbl">Meters this week</div></div>'+
+    '<div class="panel stat"><div class="num">'+totalM.toLocaleString()+'</div><div class="lbl">Total meters</div></div>'+
   '</div>';
 
   // best lifts
@@ -1545,6 +1824,13 @@ async function finishSession(){
   state.session=null; state.pickedDay=null; state.paused=false;
   state.rest=null; hideRestBar();
   state.tab='history'; render();
+  if(s.erg && s.erg.kind==='test' && ergLogged(s.erg)){
+    const sp=ergSplitSec(s.erg);
+    if(sp>=75 && sp<=240 && ergSeconds(s.erg)>=900){
+      state.testSplit=Math.round(sp*10)/10; state.testDate=s.date; await saveSettings();
+      confirmModal('Test saved: '+fmtSplit(state.testSplit)+' per 500m. Steady rows are now '+paceRange(18,22)+' and threshold '+paceRange(3,6)+'.','OK');
+    }
+  }
 }
 async function discardSession(){
   if(state.editing){
@@ -1587,6 +1873,29 @@ document.addEventListener('click', async (e)=>{
   if(e.target.closest('[data-deload-on]')){ state.deload=true; state.lastDeloadWeek=thisWeekKey(); await saveSettings(); render(); return; }
   if(e.target.closest('[data-deload-off]')){ state.deload=false; await saveSettings(); render(); return; }
   if(e.target.closest('[data-deload-snooze]')){ state.deloadDismissed=thisWeekKey(); await saveSettings(); render(); return; }
+
+  const sl=e.target.closest('[data-sleep]');
+  if(sl){ state.shortSleepDate = sl.getAttribute('data-sleep')==='on' ? todayKey() : null; await saveSettings(); renderToday(); return; }
+  const busy=e.target.closest('[data-busy-set]');
+  if(busy){ state.busyWeek = busy.getAttribute('data-busy-set')==='on' ? weekMonday(todayKey()) : null; state.pickedDay=null; await saveSettings(); render(); return; }
+  if(e.target.closest('[data-testsave]')){
+    const inp=document.getElementById('testsplit'); const raw=inp?inp.value:'';
+    if(!raw.trim()){ state.testSplit=0; state.testDate=null; await saveSettings(); render(); return; }
+    const sec=parseSplit(raw);
+    if(!sec){ confirmModal('Enter the split as minutes and seconds per 500m, like 1:55.0','OK'); return; }
+    state.testSplit=Math.round(sec*10)/10; state.testDate=todayKey(); await saveSettings(); render(); return;
+  }
+  if(e.target.closest('[data-adderg]') && state.session){
+    state.session.erg = makeErg({kind:'steady', min:0, max:0, extra:true});
+    saveSessionSoon(); renderActive($('#view'));
+    const c=document.querySelector('.ergcard'); if(c) c.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+  const ergSkip=e.target.closest('[data-ergskip]');
+  if(ergSkip && state.session && state.session.erg){
+    const g=state.session.erg; g.skipped=!g.skipped;
+    ergSkip.closest('.ergcard').replaceWith(buildErgCard(g)); saveSessionSoon(); return;
+  }
 
   if(e.target.closest('[data-export]')){ exportData(); return; }
   if(e.target.closest('[data-restore]')){ const el=document.getElementById('importfile'); if(el) el.click(); return; }
@@ -1703,7 +2012,8 @@ function showFatal(e){
 }
 async function hydrate(){
   try{
-    const settings=await Store.get('settings'); if(settings){ if(settings.unit) state.unit=settings.unit; state.deload=!!settings.deload; state.lastDeloadWeek=settings.lastDeloadWeek||null; state.deloadClockStart=settings.deloadClockStart||null; state.deloadDismissed=settings.deloadDismissed||null; }
+    const settings=await Store.get('settings'); if(settings){ if(settings.unit) state.unit=settings.unit; state.deload=!!settings.deload; state.lastDeloadWeek=settings.lastDeloadWeek||null; state.deloadClockStart=settings.deloadClockStart||null; state.deloadDismissed=settings.deloadDismissed||null; state.testSplit=Number(settings.testSplit)||0; state.testDate=settings.testDate||null; state.busyWeek=settings.busyWeek||null; state.shortSleepDate=settings.shortSleepDate||null; }
+    { const pi=progInfo(todayKey()); if(pi && pi.deload && state.lastDeloadWeek!==thisWeekKey()){ state.lastDeloadWeek=thisWeekKey(); saveSettings(); } }
     if(!state.deloadClockStart){ state.deloadClockStart=thisWeekKey(); saveSettings(); }   // start counting from now, not past weeks
     const keys=await Store.list('session:');
     const loaded=[];
