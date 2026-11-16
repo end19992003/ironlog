@@ -349,38 +349,13 @@
   .cbar-reps{font-family:var(--mono); font-size:11px; color:var(--muted)}
   .cbar-date{font-family:var(--mono); font-size:10px; color:var(--faint)}
   .chart-note{font-size:11px; color:var(--faint); margin-top:12px; text-align:center}
-  /* erg program */
-  .progstrip{margin-top:6px; padding:12px 16px; border-color:rgba(143,183,255,.35); background:rgba(143,183,255,.07)}
-  .progstrip + .dayhead{margin-top:12px}
-  .ps-week{font-family:var(--display); text-transform:uppercase; letter-spacing:1.5px; font-weight:700; font-size:14px; color:#8fb7ff}
-  .ps-dates{font-family:var(--mono); font-size:12px; color:var(--muted)}
-  .ps-sub{font-size:13px; color:var(--muted); margin-top:5px; line-height:1.4}
-  .ergline{margin-top:10px; font-size:14px; line-height:1.4; color:var(--text)}
-  .ergline b{font-family:var(--display); text-transform:uppercase; letter-spacing:1px; font-size:12px; color:#8fb7ff; margin-right:6px}
-  .sleeprow{margin-top:14px; padding:13px 16px}
-  .ergcard{padding:16px; margin-top:14px; border-color:rgba(143,183,255,.45)}
-  .ergcard .ex-head{padding:0}
-  .ergcard.skipped{opacity:.55}
-  .ergcard.skipped .ex-name{text-decoration:line-through; color:var(--muted)}
-  .ergcard.skipped .skipbtn{background:var(--panel); color:var(--muted); border:1px solid var(--line)}
-  .ergcard.skipped .ergbody{display:none}
-  .ergtip{font-size:13px; color:var(--muted); line-height:1.45; margin-top:12px; background:rgba(143,183,255,.08); border:1px solid rgba(143,183,255,.22); border-radius:10px; padding:9px 12px}
-  .erggrid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px 8px; margin-top:14px}
-  .erggrid label{display:flex; flex-direction:column; gap:5px; font-family:var(--display); text-transform:uppercase; letter-spacing:1px; font-size:11px; color:var(--faint)}
-  .ergsplit{display:flex; flex-direction:column; gap:5px; font-family:var(--display); text-transform:uppercase; letter-spacing:1px; font-size:11px; color:var(--faint)}
-  .ergsplit span{font-family:var(--mono); font-weight:700; font-size:17px; color:var(--text); letter-spacing:0; text-transform:none; padding:11px 0; text-align:center; border:1px dashed var(--line); border-radius:9px}
-  .wkphase{font-family:var(--display); text-transform:uppercase; letter-spacing:1.5px; font-size:11px; font-weight:700; color:#8fb7ff; padding:12px 6px 4px}
-  .wkrow{display:grid; grid-template-columns:24px 48px 84px 1fr; gap:8px; align-items:center; padding:8px 6px; border-bottom:1px solid rgba(48,53,63,.5); font-size:13px}
-  .wkrow:last-child{border-bottom:none}
-  .wkrow.hd{font-family:var(--display); text-transform:uppercase; letter-spacing:1px; font-size:10px; color:var(--faint)}
-  .wkrow .wr-n{font-family:var(--mono); font-weight:700; color:var(--muted)}
-  .wkrow .wr-d, .wkrow .wr-s{font-family:var(--mono); color:var(--muted)}
-  .wkrow.dl .wr-t{color:#8fb7ff}
-  .wkrow.now{background:rgba(143,183,255,.14); border-radius:8px; border-bottom-color:transparent}
-  .wkrow.now .wr-n, .wkrow.now .wr-d, .wkrow.now .wr-s{color:var(--text)}
-  .paceinput{display:flex; gap:10px; margin-top:12px}
-  .paceinput .fld{max-width:130px}
-  .cbar-fill.row{background:linear-gradient(180deg,#8fb7ff,#2b5aa3)}
+  .blockstrip{margin-top:6px; padding:12px 16px}
+  .blockstrip + .dayhead{margin-top:12px}
+  .bs-week{font-family:var(--display); text-transform:uppercase; letter-spacing:1.5px; font-weight:700; font-size:14px; color:var(--text)}
+  .bs-dates{font-family:var(--mono); font-size:12px; color:var(--muted)}
+  .bs-sub{font-size:13px; color:var(--muted); margin-top:5px; line-height:1.4}
+  .pe-alt{display:block; font-size:12px; color:var(--faint); margin-top:2px}
+  .pe-tech{display:block; font-size:12px; color:var(--accent); margin-top:2px}
 </style>
 </head>
 <body style="background:#0A346B;color:#EEF4FC;margin:0;min-height:100%;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif">
@@ -481,90 +456,30 @@ const Store = {
    the day's work. Shoulder/hip prep is intentionally gentle and pain-free. */
 /* Warm-ups: three whole-body-but-day-focused versions each; the app rotates
    A/B/C automatically by calendar week. All drills scale to pain-free range. */
+/* Short, fixed warm-ups (~3 min). Ramp-up sets on the first lift finish the job. */
+const RAMP = {name:'Ramp-up sets on your first lift', target:'2 lighter sets'};
 const WARMUPS = {
-  pushpull: [
-    [ {name:'Cat-Cow', target:'8 slow reps'},
-      {name:"World's Greatest Stretch", target:'4 / side'},
-      {name:'Band Pull-Apart', target:'15 reps'},
-      {name:'Scap Push-Up', target:'10 reps'},
-      {name:'Band External Rotation (pain-free)', target:'12 / side'},
-      {name:'Plank Walkout', target:'5 reps'} ],
-    [ {name:'Thread-the-Needle', target:'6 / side'},
-      {name:'Open-Book T-Spine Rotation', target:'6 / side'},
-      {name:'Scapular Wall Slides', target:'10 reps'},
-      {name:'Band Pull-Apart', target:'15 reps'},
-      {name:'Dead Bug', target:'6 / side'},
-      {name:'Push-Up (slow)', target:'8 reps'} ],
-    [ {name:'Cat-Cow', target:'8 slow reps'},
-      {name:'Spider-Man Lunge + reach', target:'4 / side'},
-      {name:'Prone Y-T-W Raises', target:'8 each'},
-      {name:'Band Shoulder Pass-Through (pain-free)', target:'10 reps'},
-      {name:'Band External Rotation', target:'12 / side'},
-      {name:'Inchworm', target:'5 reps'} ],
-  ],
-  shoulderarm: [
-    [ {name:'Cat-Cow', target:'8 slow reps'},
-      {name:'Spider-Man Lunge + reach', target:'4 / side'},
-      {name:'Band Pull-Apart', target:'15 reps'},
-      {name:'Band External Rotation (pain-free)', target:'12 / side'},
-      {name:'Shoulder CARs (slow circles)', target:'5 / side'},
-      {name:'Wrist + Elbow Circles', target:'10 / side'} ],
-    [ {name:'Open-Book T-Spine Rotation', target:'6 / side'},
-      {name:'Scapular Wall Slides', target:'10 reps'},
-      {name:'Band Pull-Apart (high angle)', target:'15 reps'},
-      {name:'Cuban Rotation (light)', target:'10 reps'},
-      {name:'Cross-Body Shoulder Stretch', target:'20s / side'},
-      {name:'Wrist Flexor + Extensor Stretch', target:'20s each'} ],
-    [ {name:'Cat-Cow', target:'8 slow reps'},
-      {name:'Arm Circles', target:'10 each way'},
-      {name:'Band Shoulder Pass-Through (pain-free)', target:'10 reps'},
-      {name:'Prone Y-T-W Raises', target:'8 each'},
-      {name:'Band External Rotation', target:'12 / side'},
-      {name:'Wrist + Elbow Circles', target:'10 / side'} ],
-  ],
-  legs: [
-    [ {name:'Cat-Cow', target:'8 slow reps'},
-      {name:'90/90 Hip Rotations (controlled)', target:'5 / side'},
-      {name:'Glute Bridge', target:'12 reps'},
-      {name:'Leg Swings (front + side, pain-free)', target:'10 / side'},
-      {name:'Spider-Man Lunge', target:'4 / side'},
-      {name:'Ankle Rocks', target:'10 / side'},
-      {name:'Bodyweight Goblet Squat (groove depth)', target:'10 reps'} ],
-    [ {name:'Cat-Cow', target:'8 slow reps'},
-      {name:'Adductor Rockback', target:'8 reps'},
-      {name:'Cossack Squat (pain-free depth)', target:'5 / side'},
-      {name:'Glute Bridge', target:'12 reps'},
-      {name:'Knee-to-Wall Ankle Mobility', target:'8 / side'},
-      {name:'Bird Dog', target:'6 / side'},
-      {name:'Bodyweight Squat', target:'10 reps'} ],
-    [ {name:'90/90 Hip Rotations', target:'5 / side'},
-      {name:'Couch Stretch (hip flexor, gentle)', target:'20s / side'},
-      {name:'Banded Lateral Walk', target:'10 / side'},
-      {name:'Glute Bridge', target:'12 reps'},
-      {name:'Leg Swings (pain-free)', target:'10 / side'},
-      {name:'Bodyweight Goblet Squat (groove depth)', target:'10 reps'} ],
-  ],
-  general: [
-    [ {name:'Cat-Cow', target:'8 slow reps'},
-      {name:"Child's Pose + Cross-Body Reach", target:'5 / side'},
-      {name:'Spider-Man Lunge', target:'5 / side'},
-      {name:'Skater Lunge (lateral)', target:'6 / side'},
-      {name:'90/90 Hip Rotations', target:'5 / side'},
-      {name:'Band Pull-Apart', target:'15 reps'} ],
-    [ {name:'Inchworm', target:'5 reps'},
-      {name:"World's Greatest Stretch", target:'4 / side'},
-      {name:'Arm Circles', target:'10 each way'},
-      {name:'Adductor Rockback', target:'8 reps'},
-      {name:'Bird Dog', target:'6 / side'},
-      {name:'Easy Cardio (raise temp)', target:'3 min'} ],
-    [ {name:'Cat-Cow', target:'8 slow reps'},
-      {name:'Open-Book T-Spine Rotation', target:'6 / side'},
-      {name:'Cossack Squat (pain-free depth)', target:'5 / side'},
-      {name:'Scapular Wall Slides', target:'10 reps'},
-      {name:'Glute Bridge', target:'12 reps'},
-      {name:'Easy Cardio (raise temp)', target:'3 min'} ],
-  ],
+  pushpull: [[
+    {name:"World's Greatest Stretch", target:'3 / side'},
+    {name:'Band Pull-Apart', target:'15 reps'},
+    {name:'Band External Rotation (pain-free)', target:'12 / side'},
+    RAMP ]],
+  shoulderarm: [[
+    {name:'Band Pull-Apart', target:'15 reps'},
+    {name:'Band External Rotation (pain-free)', target:'12 / side'},
+    {name:'Wrist + Elbow Circles', target:'10 / side'},
+    RAMP ]],
+  legs: [[
+    {name:'90/90 Hip Rotations (controlled)', target:'5 / side'},
+    {name:'Glute Bridge', target:'12 reps'},
+    {name:'Bodyweight Goblet Squat (groove depth)', target:'10 reps'},
+    RAMP ]],
+  general: [[
+    {name:'Cat-Cow', target:'8 slow reps'},
+    {name:"World's Greatest Stretch", target:'3 / side'},
+    {name:'Glute Bridge', target:'12 reps'} ]],
 };
+
 function weekVariantIndex(dateStr){
   const d = dateStr ? new Date(dateStr+'T12:00:00') : new Date();
   const ws = startOfWeek(d);
@@ -574,70 +489,85 @@ function weekVariantIndex(dateStr){
 const COOLDOWN = [
   {name:"Child's Pose + Cross-Body Reach", target:'30s / side'},
   {name:'Spider-Man Lunge (hold)', target:'20s / side'},
-  {name:'Cat-Cow', target:'6 slow reps'},
 ];
 
 const DAYS = {
-  d1:{ label:'Chest + Back', abbr:'CB', type:'lift', note:'Heavy · antagonist supersets', warmup:'pushpull', cooldown:COOLDOWN, exercises:[
+  d1:{ label:'Chest + Back', abbr:'CB', type:'lift', note:'Antagonist supersets', warmup:'pushpull', cooldown:COOLDOWN, exercises:[
     {name:'Neutral-Grip DB Bench', sets:4, reps:'6–8', group:'Superset 1', swap:{name:'Barbell Bench Press', bar:true}},
-    {name:'Neutral-Grip Pull-Up', sets:4, reps:'6–8', group:'Superset 1'},
+    {name:'Neutral-Grip Pull-Up', sets:4, reps:'8–10', group:'Superset 1'},
     {name:'Incline DB Press', sets:4, reps:'8–10', group:'Superset 2', swap:{name:'Incline Barbell Press', bar:true}},
     {name:'Barbell Row', sets:4, reps:'8–10', group:'Superset 2', bar:true, swap:{name:'Bent-Over DB Row', bar:false}},
-    {name:'Cable Fly', sets:3, reps:'10–12', group:'Superset 3'},
-    {name:'T-Bar Row', sets:3, reps:'10–12', group:'Superset 3'},
-    {name:'Chest Dip (assisted / pain-free depth)', sets:3, reps:'10', group:'Superset 4', swap:{name:'Decline Barbell Press', bar:true}},
-    {name:'Seated Cable Row', sets:3, reps:'12', group:'Superset 4'},
-    {name:'Cable Wood Chop', sets:2, reps:'12 / side', group:'Core + shoulder care'},
-    {name:'Face Pull', sets:2, reps:'15', group:'Core + shoulder care'},
+    {name:'Cable Fly', sets:3, reps:'10–12', group:'Superset 3', b:{name:'Pec Deck'}, tech:'drop'},
+    {name:'T-Bar Row', sets:3, reps:'10–12', group:'Superset 3', b:{name:'Single-Arm DB Row', reps:'10–12 / side'}},
+    {name:'Chest Dip (assisted / pain-free depth)', sets:3, reps:'10', group:'Superset 4', swap:{name:'Decline Barbell Press', bar:true}, b:{name:'Decline DB Press', reps:'10–12'}},
+    {name:'Seated Cable Row', sets:3, reps:'12', group:'Superset 4', b:{name:'Wide-Grip Cable Row'}},
+    {name:'DB Pullover', sets:3, reps:'15', group:'Finisher', b:{name:'Straight-Arm Pulldown'}},
+    {name:'Cable Wood Chop', sets:3, reps:'12 / side', group:'Core'},
+    {name:'Plank', sets:3, reps:'40s', load:'bw', count:'sec', group:'Core'},
   ]},
-  d3:{ label:'Legs + Core', abbr:'LEG', type:'lift', note:'Hip-friendly', warmup:'legs', cooldown:COOLDOWN, exercises:[
-    {name:'Goblet Squat (core primer)', sets:2, reps:'10', group:'Primary · squat & hinge'},
-    {name:'Box Squat (dumbbell, pain-free depth)', sets:4, reps:'6–10', group:'Primary · squat & hinge', swap:{name:'Hack Squat (barbell, pain-free depth)', bar:true}},
-    {name:'Romanian Deadlift', sets:3, reps:'8–10', bar:true, group:'Primary · squat & hinge', evenWeek:{name:'Trap-Bar Deadlift (moderate)', sets:3, reps:'5', bar:true}},
-    {name:'Reverse Lunge / Step-Up', sets:3, reps:'10 / side', group:'Quads & hamstrings'},
-    {name:'Leg Curl', sets:3, reps:'12', group:'Quads & hamstrings'},
-    {name:'Standing Calf Raise', sets:4, reps:'15–20', group:'Calves'},
-    {name:'Farmers Carry', sets:3, reps:'40 steps', count:'steps', group:'Core'},
-    {name:'Copenhagen Plank Press-Out (short-lever, pain-free)', sets:2, reps:'8 / side', load:'bw', group:'Core'},
-  ]},
-  d2:{ label:'Shoulders + Arms', abbr:'SA', type:'lift', note:'Delts · arms', warmup:'shoulderarm', cooldown:COOLDOWN, exercises:[
+  d2:{ label:'Shoulders + Arms', abbr:'SA', type:'lift', warmup:'shoulderarm', cooldown:COOLDOWN, exercises:[
     {name:'Landmine Press (pain-free height)', sets:4, reps:'6–8', group:'Shoulders'},
-    {name:'DB Lateral Raise', sets:4, reps:'12–15', group:'Delt superset'},
-    {name:'Rear Delt Fly', sets:4, reps:'12–15', group:'Delt superset'},
+    {name:'DB Lateral Raise', sets:4, reps:'12–15', group:'Shoulders', b:{name:'Single-Arm Cable Lateral Raise', reps:'12–15 / side'}, tech:'drop'},
+    {name:'Rear Delt Fly', sets:4, reps:'12–15', group:'Shoulders', b:{name:'Reverse Pec Deck'}},
+    {name:'Neutral-Grip DB Shoulder Press', sets:3, reps:'10', group:'Shoulders', swap:{name:'Barbell Overhead Press', bar:true}},
     {name:'EZ-Bar Curl', sets:4, reps:'8–10', group:'Arm superset 1'},
     {name:'Close-Grip Bench', sets:4, reps:'8–10', group:'Arm superset 1', bar:true},
-    {name:'Incline DB Curl', sets:3, reps:'10–12', group:'Arm superset 2'},
-    {name:'Skull Crusher', sets:3, reps:'10–12', group:'Arm superset 2'},
-    {name:'V-Sit Halo', sets:2, reps:'10 / side', group:'Core · finish'},
+    {name:'Incline DB Curl', sets:3, reps:'10–12', group:'Arm superset 2', b:{name:'Preacher Curl'}},
+    {name:'Skull Crusher', sets:3, reps:'10–12', group:'Arm superset 2', b:{name:'Cable Overhead Extension'}},
+    {name:'Concentration Curl', sets:3, reps:'12', group:'Arm superset 3'},
+    {name:'Rope Pushdown', sets:3, reps:'12–15', group:'Arm superset 3', b:{name:'Straight-Bar Pushdown'}},
+    {name:'V-Sit Halo', sets:3, reps:'10 / side', group:'Core'},
+    {name:'Overhead Carry (pain-free overhead)', sets:3, reps:'30 steps', count:'steps', group:'Core'},
+  ]},
+  d3:{ label:'Legs', abbr:'LEG', type:'lift', warmup:'legs', cooldown:COOLDOWN, exercises:[
+    {name:'Goblet Squat (core primer)', sets:3, reps:'10', group:'Primary · squat & hinge'},
+    {name:'Box Squat (dumbbell, pain-free depth)', sets:5, reps:'6–10', group:'Primary · squat & hinge', swap:{name:'Hack Squat (barbell, pain-free depth)', bar:true}},
+    {name:'Romanian Deadlift', sets:4, reps:'8–10', bar:true, group:'Primary · squat & hinge'},
+    {name:'Reverse Lunge / Step-Up', sets:3, reps:'12 / side', group:'Quads & hamstrings', b:{name:'Split Squat (pain-free depth)', reps:'10 / side'}},
+    {name:'Leg Press (comfortable range)', sets:4, reps:'12', group:'Quads & hamstrings'},
+    {name:'Leg Curl', sets:4, reps:'12', group:'Quads & hamstrings', b:{name:'Seated Leg Curl'}, tech:'restpause'},
+    {name:'Standing Calf Raise', sets:5, reps:'15–20', group:'Calves'},
+    {name:'Seated Calf Raise', sets:4, reps:'20', group:'Calves', b:{name:'Leg Press Calf Raise'}},
+    {name:'Farmers Carry', sets:3, reps:'40 steps', count:'steps', group:'Core'},
+    {name:'Copenhagen Plank Press-Out (short-lever, pain-free)', sets:3, reps:'8 / side', load:'bw', group:'Core'},
+    {name:'Single-Arm KB Deadlift', sets:3, reps:'8 / side', group:'Accessory · optional'},
   ]},
   d4:{ label:'Chest + Back · Pump', abbr:'CBP', type:'lift', note:'Antagonist supersets · pump', warmup:'pushpull', cooldown:COOLDOWN, exercises:[
     {name:'Incline DB Press', sets:4, reps:'10', group:'Superset 1', swap:{name:'Incline Barbell Press', bar:true}},
     {name:'Neutral-Grip Pull-Up', sets:4, reps:'8–10', group:'Superset 1'},
     {name:'Neutral-Grip DB Bench', sets:3, reps:'12', group:'Superset 2', swap:{name:'Barbell Bench Press', bar:true}},
-    {name:'Chest-Supported Row', sets:3, reps:'12', group:'Superset 2'},
-    {name:'Cable Fly', sets:3, reps:'15', group:'Superset 3'},
-    {name:'Lat Pulldown (neutral)', sets:3, reps:'15', group:'Superset 3'},
-    {name:'Half-Bench Single-Arm Paused Press', sets:2, reps:'8 / side', group:'Core + shoulder care'},
-    {name:'Face Pull', sets:2, reps:'15', group:'Core + shoulder care'},
+    {name:'Chest-Supported Row', sets:3, reps:'12', group:'Superset 2', b:{name:'Seal Row'}},
+    {name:'Cable Fly', sets:3, reps:'15', group:'Superset 3', b:{name:'Low-to-High Cable Fly'}},
+    {name:'Lat Pulldown (neutral)', sets:3, reps:'15', group:'Superset 3', b:{name:'Single-Arm Lat Pulldown', reps:'12 / side'}, tech:'drop'},
+    {name:'Trap-Bar Deadlift (moderate)', sets:3, reps:'5', bar:true, group:'Heavy pull'},
+    {name:'Half-Bench Single-Arm Paused Press', sets:3, reps:'8 / side', group:'Core'},
+    {name:'Bear Crawl', sets:3, reps:'30 steps', count:'steps', group:'Core'},
+    {name:'KB Gorilla Row', sets:3, reps:'10 / side', group:'Accessory · optional'},
   ]},
-  d5:{ label:'Shoulders + Arms · Pump', abbr:'SAP', type:'lift', note:'Pump · leg block', warmup:'shoulderarm', cooldown:COOLDOWN, exercises:[
-    {name:'Neutral-Grip DB Shoulder Press', sets:3, reps:'10', group:'Shoulders', swap:{name:'Barbell Overhead Press', bar:true}},
+  d5:{ label:'Shoulders + Arms · Pump', abbr:'SAP', type:'lift', note:'Detail / pump', warmup:'shoulderarm', cooldown:COOLDOWN, exercises:[
+    {name:'Neutral-Grip DB Shoulder Press', sets:4, reps:'10', group:'Shoulders', swap:{name:'Barbell Overhead Press', bar:true}},
     {name:'DB Lateral Raise', sets:3, reps:'12–15', group:'Giant set'},
     {name:'Rear Delt Raise', sets:3, reps:'12–15', group:'Giant set'},
-    {name:'Cable Lateral Raise', sets:3, reps:'12–15', group:'Giant set'},
+    {name:'Cable Lateral Raise', sets:3, reps:'12–15', group:'Giant set', b:{name:'Lean-Away Cable Lateral Raise'}},
     {name:'EZ-Bar Curl', sets:4, reps:'10', group:'Biceps superset'},
-    {name:'Hammer Curl', sets:3, reps:'12', group:'Biceps superset'},
-    {name:'Overhead DB Extension', sets:4, reps:'12', group:'Triceps superset'},
-    {name:'Rope Pushdown', sets:3, reps:'12', group:'Triceps superset'},
-    {name:'Leg Press (comfortable range)', sets:3, reps:'12–15', group:'Leg block'},
-    {name:'Seated Calf Raise', sets:3, reps:'20', group:'Leg block'},
-    {name:'V-Sit Kick-Out', sets:2, reps:'12', load:'bw', group:'Core · finish'},
+    {name:'Hammer Curl', sets:4, reps:'12', group:'Biceps superset', b:{name:'Cross-Body Hammer Curl'}},
+    {name:'Overhead DB Extension', sets:4, reps:'12', group:'Triceps superset', b:{name:'Overhead EZ-Bar Extension'}},
+    {name:'Rope Pushdown', sets:4, reps:'12', group:'Triceps superset', b:{name:'Reverse-Grip Pushdown'}, tech:'restpause'},
+    {name:'Wrist Curl', sets:3, reps:'20', group:'Forearms'},
+    {name:'Reverse Curl', sets:3, reps:'15', group:'Forearms'},
+    {name:'V-Sit Kick-Out', sets:3, reps:'12', load:'bw', group:'Core'},
+    {name:'Farmers Carry', sets:3, reps:'40 steps', count:'steps', group:'Core'},
   ]},
-  sat:{ label:'Key Erg Session', abbr:'KEY', type:'cardio', note:'The week’s main row', exercises:[
-    {name:'Plank', sets:2, reps:'45s', load:'bw', count:'sec', group:'Core · optional'},
-    {name:'Cable Wood Chop', sets:2, reps:'12 / side', group:'Core · optional'},
-  ]},
-  row:{ label:'Easy Row', abbr:'ROW', type:'cardio', note:'Optional · easy', exercises:[] },
+  d6:{ label:'Optional · Core & Cardio', abbr:'CDO', type:'cardio', note:'Recovery / weak points', warmup:'general', exercises:[
+    {name:'Plank', sets:3, reps:'45s', load:'bw', count:'sec', group:'Core circuit'},
+    {name:'V-Sit Halo', sets:3, reps:'10 / side', group:'Core circuit'},
+    {name:'Cable Wood Chop', sets:3, reps:'12 / side', group:'Core circuit'},
+    {name:'Farmers Carry', sets:3, reps:'40 steps', count:'steps', group:'Core circuit'},
+    {name:'Bear Crawl', sets:3, reps:'30 steps', count:'steps', group:'Core circuit'},
+    {name:'Copenhagen Plank Press-Out (short-lever, pain-free)', sets:3, reps:'8 / side', load:'bw', group:'Core circuit'},
+    {name:'KB Plank Row', sets:3, reps:'10 / side', group:'Accessory · optional'},
+    {name:'Single-Arm KB Gorilla Row', sets:3, reps:'10 / side', group:'Accessory · optional'},
+  ], cardio:[{name:'Cardio of choice (hike, bike, class, erg)', target:'30–45 min · push the pace for part of it'}] },
   rest:{ label:'Rest Day', abbr:'—', type:'rest', exercises:[] },
 };
 
@@ -647,7 +577,7 @@ const GROUP_METHODS = {
   'Arm superset 1':'alt','Arm superset 2':'alt','Arm superset 3':'alt',
   'Giant set':'giant',
   'Biceps superset':'compound','Triceps superset':'compound','Forearms':'compound',
-  'Core':'alt','Core circuit':'circuit','Delt superset':'alt','Arm pump · stay 2–3 reps short':'alt','Core · optional':'circuit','Core + shoulder care':'alt','Leg block':'alt',
+  'Core':'alt','Core circuit':'circuit',
 };
 function methodCaption(group){
   switch(GROUP_METHODS[group]){
@@ -679,143 +609,10 @@ function restLabel(ex){
   return '45–60s';
 }
 // ISO weekday 1=Mon ... 7=Sun
-const SCHEDULE = {1:'d1',2:'d3',3:'d2',4:'d4',5:'d5',6:'sat',7:'rest'};
+const SCHEDULE = {1:'d1',2:'d2',3:'d3',4:'d4',5:'d5',6:'d6',7:'rest'};
 const WEEKDAY_NAMES = {1:'Mon',2:'Tue',3:'Wed',4:'Thu',5:'Fri',6:'Sat',7:'Sun'};
-const PROGRAM_NAME = 'Ironlog + Erg';
-const PROGRAM_BLURB = 'The Arnold split as the backbone: chest and back twice a week, shoulders and arms twice, legs heavy on Tuesday plus a Friday leg block. Easy rows follow four of the five lifting days, and Saturday is the week’s key erg session. The cardio runs in phases (12 weeks of base, 8 of threshold, 6 of VO2 max), then repeats. Deloads land every fourth week, and every erg pace comes from your 20-minute test. Run the big compounds to about 1–2 reps in reserve, and let pain-free range win over the prescribed depth or height.';
-
-/* ---------- Erg program: 12-week block, then a reset deload, then repeat ---------- */
-const PROGRAM_START = '2026-10-26';      // Monday of week 1 (re-entry week is the 7 days before)
-const T_LOW=[10,10,10,10], T_MID=[15,15,15,10], T_HIGH=[20,20,20,15], T_DL=[15,15,15,10];
-const S = (min)=>({kind:'steady', min, label:min+' min easy'});
-const TEST = {kind:'test', label:'20-minute test'};
-const TH = (label)=>({kind:'threshold', label});
-const V = (label)=>({kind:'vo2', label});
-const ERG_WEEKS = {   // weekday rows after Mon/Wed/Thu/Fri lifting + Saturday session
-  1:{phase:'Base', tails:T_LOW, sat:S(40)},
-  2:{phase:'Base', tails:T_LOW, sat:TEST},
-  3:{phase:'Base', tails:T_MID, sat:S(50)},
-  4:{phase:'Base', tails:T_LOW, sat:S(35), deload:true},
-  5:{phase:'Base', tails:T_MID, sat:S(55)},
-  6:{phase:'Base', tails:[20,15,15,10], sat:S(60)},
-  7:{phase:'Base', tails:T_HIGH, sat:S(65)},
-  8:{phase:'Base', tails:T_DL, sat:S(45), deload:true},
-  9:{phase:'Base', tails:T_HIGH, sat:S(70)},
-  10:{phase:'Base', tails:T_HIGH, sat:S(70)},
-  11:{phase:'Base', tails:T_HIGH, sat:S(70)},
-  12:{phase:'Base', tails:T_DL, sat:TEST, deload:true},
-  13:{phase:'Threshold', tails:T_HIGH, sat:TH('3 × 10 min, 3 min rest')},
-  14:{phase:'Threshold', tails:T_HIGH, sat:TH('4 × 10 min, 2 min rest')},
-  15:{phase:'Threshold', tails:T_HIGH, sat:TH('3 × 12 min, 3 min rest')},
-  16:{phase:'Threshold', tails:T_DL, sat:TH('2 × 10 min, 3 min rest'), deload:true},
-  17:{phase:'Threshold', tails:T_HIGH, sat:TH('2 × 15 min, 4 min rest')},
-  18:{phase:'Threshold', tails:T_HIGH, sat:TH('3 × 15 min, 4 min rest')},
-  19:{phase:'Threshold', tails:T_HIGH, sat:TH('2 × 20 min, 4 min rest')},
-  20:{phase:'Threshold', tails:T_DL, sat:TEST, deload:true},
-  21:{phase:'VO2 max', tails:T_HIGH, sat:V('6 × 2 min, 2 min rest')},
-  22:{phase:'VO2 max', tails:T_HIGH, sat:V('5 × 3 min, 3 min rest')},
-  23:{phase:'VO2 max', tails:T_HIGH, sat:V('4 × 4 min, 3 min rest')},
-  24:{phase:'VO2 max', tails:T_DL, sat:V('3 × 3 min, 3 min rest'), deload:true},
-  25:{phase:'VO2 max', tails:T_HIGH, sat:V('8 × 500m, 2 min rest')},
-  26:{phase:'VO2 max', tails:T_DL, sat:TEST},
-};
-const CYCLE_WEEKS = 26;
-const TAIL_SLOT = {d1:0, d2:1, d4:2, d5:3};
-const REENTRY_SCHEDULE = SCHEDULE;
-const BUSY_SCHEDULE = {1:'d1',2:'d3',3:'row',4:'d2',5:'rest',6:'row',7:'rest'};
-const RESET_WEEK = {phase:'Reset', tails:T_LOW, sat:S(35), deload:true};
-
-function dayNum(ds){ return Math.round(new Date(ds+'T12:00:00').getTime()/86400000); }
-function addDays(ds, n){ const d=new Date(ds+'T12:00:00'); d.setDate(d.getDate()+n); return localYmd(d); }
-function weekMonday(ds){ return localYmd(startOfWeek(new Date(ds+'T12:00:00'))); }
-function progInfo(dateStr){
-  const ds = dateStr || todayKey();
-  const diff = dayNum(ds) - dayNum(PROGRAM_START);
-  if(diff < -7) return null;                                   // before the program
-  if(diff < 0) return {phase:'reentry', week:0, cycle:0, deload:false, title:'Re-entry week'};
-  const w = Math.floor(diff/7) + 1;
-  const mk = (wk,cy)=>{ const p=ERG_WEEKS[wk]; return {phase:'block', week:wk, cycle:cy, deload:!!p.deload, plan:p,
-    title:'Week '+wk+' of '+CYCLE_WEEKS+' · '+p.phase+(cy?' · lap '+(cy+1):'')}; };
-  if(w <= CYCLE_WEEKS) return mk(w, 0);
-  const idx = w - CYCLE_WEEKS - 1, cycle = Math.floor(idx/(CYCLE_WEEKS+1)) + 1, pos = idx % (CYCLE_WEEKS+1);
-  if(pos === 0) return {phase:'reset', week:0, cycle, deload:true, plan:RESET_WEEK, title:'Reset deload'};
-  return mk(pos, cycle);
-}
-function scheduleFor(ds){
-  if(isBusy(ds)) return BUSY_SCHEDULE;
-  const info = progInfo(ds);
-  return (info && info.phase==='reentry') ? REENTRY_SCHEDULE : SCHEDULE;
-}
-function isBusy(ds){ return !!state.busyWeek && weekMonday(ds||todayKey())===state.busyWeek; }
-function isShortSleep(ds){ return !!state.shortSleepDate && state.shortSleepDate===(ds||todayKey()); }
-
-/* Which erg session a template gets on a given date (null = no row). */
-function ergPlanFor(key, ds){
-  const info = progInfo(ds); if(!info) return null;
-  let e = null;
-  if(info.phase==='reentry'){
-    if(key in TAIL_SLOT) e = {kind:'steady', min:10, max:10, easy:true, tail:true};
-    else if(key==='sat') e = {kind:'steady', min:25, max:30, easy:true};
-    else if(key==='row') e = {kind:'steady', min:20, max:30, easy:true};
-  } else {
-    const p = info.plan;
-    if(key in TAIL_SLOT){ const m=p.tails[TAIL_SLOT[key]]; e = {kind:'steady', min:m, max:m, easy:true, tail:true}; }
-    else if(key==='sat') e = p.sat.kind==='steady' ? {kind:'steady', min:p.sat.min, max:p.sat.min, long:true} : {kind:p.sat.kind, label:p.sat.label};
-    else if(key==='row') e = {kind:'steady', min:30, max:45, easy:true};
-  }
-  if(isBusy(ds)){
-    e = (key==='row' || key==='sat') ? {kind:'steady', min:20, max:20, easy:true} : null;
-  }
-  if(e && isShortSleep(ds)){
-    if(e.kind!=='steady') e = {kind:'steady', min:20, max:20, easy:true, sleepSwap:true};
-    else { e.min = Math.min(e.min,20); e.max = Math.min(e.max,20); e.easy = true; e.sleep = true; e.long=false; }
-  }
-  return e;
-}
-function fmtSplit(sec){
-  if(!(sec>0)) return '—';
-  const m = Math.floor(sec/60), s = sec - m*60;
-  return m+':'+(s<10?'0':'')+s.toFixed(1);
-}
-function parseSplit(str){
-  const t = String(str||'').trim(); if(!t) return 0;
-  const m = t.match(/^(\d{1,2})[:.](\d{1,2}(?:\.\d)?)$/); if(!m) return 0;
-  const sec = (+m[1])*60 + parseFloat(m[2]);
-  return (sec>=75 && sec<=240) ? sec : 0;
-}
-function paceRange(add1, add2){ const t = state.testSplit; return t ? fmtSplit(t+add1).replace(/\.0$/,'')+'–'+fmtSplit(t+add2).replace(/\.0$/,'')+' /500m' : ''; }
-function ergTitle(e){ return e.kind==='test' ? '20-minute test' : e.kind==='threshold' ? 'Threshold intervals' : e.kind==='vo2' ? 'VO2 max intervals' : e.long ? 'Long easy row' : (e.easy ? 'Easy row' : 'Steady state'); }
-function ergTargetText(e){
-  if(e.kind==='steady' && e.extra) return 'Any length · '+(paceRange(18,22) || 'easy')+' · rate 18–20';
-  if(e.kind==='steady'){
-    const mins = e.min===e.max ? e.min+' min' : e.min+'–'+e.max+' min';
-    const pace = paceRange(18,22) || 'by feel, nose breathing';
-    return mins+' · '+(e.easy && !state.testSplit ? 'easy' : pace)+' · rate 18–20';
-  }
-  if(e.kind==='threshold') return e.label+' · '+(paceRange(3,6) || 'by feel, about your 40-min pace')+' · rate '+(state.testSplit?'24–26':'24');
-  if(e.kind==='vo2') return e.label+' · '+(paceRange(-9,-6) || 'by feel, about your 2k pace')+' · rate 28–32';
-  return 'Even split, all-out · rate 26–30';
-}
-function ergTip(e){
-  if(e.sleepSwap) return 'Short on sleep, so no threshold today. Row 20 easy minutes or skip it.';
-  if(e.extra) return 'An extra row, not part of today’s plan. Keep it easy unless the plan says otherwise.';
-  if(e.tail) return 'Easy row after the lift: rate 18–20, conversational. These minutes are most of your aerobic base.';
-  if(e.kind==='vo2') return 'Warm up 12–15 min with three short pushes. The last 30 sec of each rep should be a fight, but the pace holds. Rest easy between reps. If a rep falls more than 2 sec off target, stop there.';
-  if(e.long) return 'The week’s long row. Same split start to finish, rate 18–20, nasal breathing possible. Drag 110–125. If the catch pinches your hip, stop an inch short of full compression.';
-  if(e.kind==='steady') return 'Same split start to finish; if it fades late, you started too fast. Drag 110–125. If the catch pinches your hip, stop an inch short of full compression.';
-  if(e.kind==='threshold') return 'Warm up 10 min easy. Hold one split across every rep; the last rep no more than a second faster. Cool down 5–10 min.';
-  return 'Warm up 10 min with three 20-stroke pushes. Open 1–2 sec slower than goal, settle, then empty the tank over the last 4 min. Your average split here resets every erg pace.';
-}
-function makeErg(e){
-  return {kind:e.kind, title:ergTitle(e), target:ergTargetText(e), tip:ergTip(e), min:e.min||0, max:e.max||0,
-    tmin:'', tsec:'', meters:'', rate:'', hr:'', note:'', skipped:false};
-}
-function ergSeconds(g){ return (Number(g.tmin)||0)*60 + (Number(g.tsec)||0); }
-function ergSplitSec(g){ const t=ergSeconds(g), m=Number(g.meters)||0; return (t>0 && m>0) ? t*500/m : 0; }
-function ergLogged(g){ return g && !g.skipped && (Number(g.meters)>0 || ergSeconds(g)>0); }
-function fmtRange(ds){ const a=new Date(ds+'T12:00:00'), b=new Date(addDays(ds,6)+'T12:00:00');
-  const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return M[a.getMonth()]+' '+a.getDate()+'–'+(a.getMonth()===b.getMonth()?'':M[b.getMonth()]+' ')+b.getDate(); }
+const PROGRAM_NAME = 'Modified Arnold Split · Blocks A + B';
+const PROGRAM_BLURB = 'Five training days plus a Saturday for core and cardio of your choice, built on the classic Arnold split and adapted around your left hip and right shoulder. The main compounds stay fixed; about a third of the accessories switch between Block A and Block B every 6 weeks. One isolation a day gets an intensity technique on its last set. Run the big compounds to about 1–2 reps in reserve, and let pain-free range win over the prescribed depth or height.';
 
 /* ---------- App state ---------- */
 const state = {
@@ -825,10 +622,6 @@ const state = {
   lastDeloadWeek:null,   // Monday (ymd) of the last deload week
   deloadClockStart:null, // Monday (ymd) when the deload countdown starts (ignores earlier weeks)
   deloadDismissed:null,  // Monday (ymd) of the week the nudge was dismissed
-  testSplit:0,           // 20-min test average split, seconds per 500m
-  testDate:null,
-  busyWeek:null,         // Monday (ymd) of a week switched to the busy-week floor
-  shortSleepDate:null,   // date flagged as under 6 hours of sleep
   session:null,      // active session object
   sessions:[],       // completed sessions cache
   pickedDay:null,    // override of today's template key
@@ -847,8 +640,7 @@ const state = {
 
 /* ---------- Helpers ---------- */
 function isoWeekday(d){ const w=d.getDay(); return w===0?7:w; }
-function todayKey(){ return localYmd(new Date()); }
-function localYmd(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function todayKey(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }  // local date, so late-evening workouts log on the right day
 function fmtClock(sec){
   sec=Math.max(0,Math.floor(sec));
   const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
@@ -915,7 +707,7 @@ function barbellHTML(weight){
 
 /* ---------- Session building ---------- */
 function templateKeyForToday(){
-  return state.pickedDay || scheduleFor(todayKey())[isoWeekday(new Date())];
+  return state.pickedDay || SCHEDULE[isoWeekday(new Date())];
 }
 function lastNoteFor(name, excludeId){
   const sorted=state.sessions.slice().sort((a,b)=>b.id-a.id);
@@ -932,7 +724,7 @@ function lastSetsFor(name, excludeId){
   }
   return null;
 }
-function saveSettings(){ return Store.set('settings',{unit:state.unit, deload:state.deload, lastDeloadWeek:state.lastDeloadWeek, deloadClockStart:state.deloadClockStart, deloadDismissed:state.deloadDismissed, testSplit:state.testSplit, testDate:state.testDate, busyWeek:state.busyWeek, shortSleepDate:state.shortSleepDate}); }
+function saveSettings(){ return Store.set('settings',{unit:state.unit, deload:state.deload, lastDeloadWeek:state.lastDeloadWeek, deloadClockStart:state.deloadClockStart, deloadDismissed:state.deloadDismissed}); }
 
 /* ---------- Backup / Restore ---------- */
 async function exportData(){
@@ -971,42 +763,53 @@ function trainingWeeksSinceDeload(){
   state.sessions.forEach(s=>{ const wk=ymd(startOfWeek(new Date(s.date+'T12:00:00'))); if(wk>anchor) weeks.add(wk); });
   return weeks.size;
 }
-function deloadReminderDue(){ if(progInfo(todayKey())) return false;   // the program schedules its own deloads
-  return !state.deload && trainingWeeksSinceDeload()>=5 && state.deloadDismissed!==thisWeekKey(); }
+function deloadReminderDue(){ return !state.deload && trainingWeeksSinceDeload()>=5 && state.deloadDismissed!==thisWeekKey(); }
+/* ---------- 6-week block rotation ---------- */
+const BLOCK_START = '2026-11-16';   // Block B opens the rotation; blocks alternate every 6 weeks
+const TECH = {
+  drop:{label:'drop set', how:'At the end of the last set, drop the weight 20–30% and go again to 1–2 reps short of failure. Once.'},
+  restpause:{label:'rest-pause', how:'At the end of the last set, rest 15 breaths, then do as many clean reps as you can. Repeat once.'},
+};
+function localYmd(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function dayNum(ds){ return Math.round(new Date(ds+'T12:00:00').getTime()/86400000); }
+function addDays(ds, n){ const d=new Date(ds+'T12:00:00'); d.setDate(d.getDate()+n); return localYmd(d); }
+function blockFor(ds){
+  const w = Math.floor((dayNum(ds||todayKey()) - dayNum(BLOCK_START))/7);
+  if(w < 0) return {letter:'A', week:0, start:null};
+  const idx = Math.floor(w/6);
+  return {letter: idx%2===0 ? 'B' : 'A', week: w%6 + 1, start: addDays(BLOCK_START, idx*42)};
+}
+function fmtRange(a, b){
+  const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const x=new Date(a+'T12:00:00'), y=new Date(b+'T12:00:00');
+  return M[x.getMonth()]+' '+x.getDate()+'–'+(x.getMonth()===y.getMonth()?'':M[y.getMonth()]+' ')+y.getDate();
+}
+function exForBlock(ex, letter){ return (letter==='B' && ex.b) ? Object.assign({}, ex, ex.b, {swap: ex.b.name ? undefined : ex.swap}) : ex; }
+
 function newSession(key, dateStr){
   const tpl = DAYS[key];
-  const date = dateStr || todayKey();
-  const info = progInfo(date);
-  const reentry = !!(info && info.phase==='reentry');
-  const progDeload = !!(info && info.deload);
-  const sleep = isShortSleep(date);
-  const s = { id: Date.now(), date, dayKey:key, dayLabel:tpl.label, type:tpl.type, deload:!!state.deload || progDeload,
-    progWeek: info ? info.week : null, progPhase: info ? info.phase : null, shortSleep: sleep,
+  const date = dateStr || todayKey(), blk = blockFor(date);
+  const s = { id: Date.now(), date, block: blk.letter, dayKey:key, dayLabel:tpl.label, type:tpl.type, deload:!!state.deload,
     started: Date.now(), elapsed:0, warmup:[], cooldown:[], exercises:[], cardio:[] };
   const wv = weekVariantIndex(s.date);
-  s.warmupVariant = ['A','B','C'][wv];
+  s.warmupVariant = null;
   const warr = (tpl.warmup && WARMUPS[tpl.warmup]) ? (WARMUPS[tpl.warmup][wv] || WARMUPS[tpl.warmup][0]) : [];
   warr.forEach(w=> s.warmup.push({name:w.name, target:w.target, done:false}));
   (tpl.cooldown||[]).forEach(w=> s.cooldown.push({name:w.name, target:w.target, done:false}));
-  const evenWeek = !!(info && !reentry && info.week%2===0);
   (tpl.exercises||[]).forEach(base=>{
     if(!base.sets) return; // strength/rep-based entries only
-    const ex = (base.evenWeek && evenWeek) ? Object.assign({}, base, base.evenWeek) : base;   // weekly hinge rotation
-    let nsets = ex.sets;
-    if(state.deload) nsets = Math.max(2, Math.round(ex.sets*0.6));   // manual deload: ~40% fewer sets
-    else if(progDeload) nsets = Math.max(2, ex.sets-1);              // program deload: one fewer set
-    if(reentry || sleep) nsets = Math.min(nsets, 2);                 // re-entry week / short sleep
+    const ex = exForBlock(base, blk.letter);
+    const nsets = state.deload ? Math.max(2, Math.round(ex.sets*0.6)) : ex.sets;   // ~40% volume cut on deloads
     const sets=[];
     for(let i=0;i<nsets;i++) sets.push({weight:'',reps:'',done:false});
-    const o={name:ex.name, target:nsets+' × '+ex.reps, group:ex.group||'', reps:ex.reps,
+    const tech = (!state.deload && ex.tech) ? ' · last set: '+TECH[ex.tech].label : '';
+    const o={name:ex.name, target:nsets+' × '+ex.reps+tech, group:ex.group||'', reps:ex.reps,
       bar:!!ex.bar, load:ex.load||'', count:ex.count||'reps', note:'', lastNote:lastNoteFor(ex.name), sets};
     if(ex.swap){ o.swap=ex.swap; o.baseName=ex.name; o.baseBar=!!ex.bar; o.swapped=false; }
     s.exercises.push(o);
   });
   (tpl.cardio||[]).forEach(c=> s.cardio.push({name:c.name, target:c.target||'', dur:0, dist:'', running:false, runStart:0}));
   if(tpl.finisher) s.cardio.push({name:tpl.finisher.name, target:tpl.finisher.target, dur:0, dist:'', running:false, runStart:0});
-  const ep = ergPlanFor(key, date);
-  if(ep) s.erg = makeErg(ep);
   return s;
 }
 
@@ -1171,7 +974,7 @@ function pickModal(title, options){ // options: [{label,value}]
 
 /* ---------- Backfill a past workout on a chosen date ---------- */
 async function addWorkoutOn(dateStr){
-  const opts=['d1','d3','d2','d4','d5','sat','row'].map(k=>({label:DAYS[k].label, value:k}));
+  const opts=['d1','d2','d3','d4','d5','d6'].map(k=>({label:DAYS[k].label, value:k}));
   const key=await pickModal('Add a workout for '+dateStr, opts);
   if(!key) return;
   const s=newSession(key, dateStr);
@@ -1199,30 +1002,23 @@ function render(){
 }
 
 /* ===== TODAY ===== */
-function progStripHTML(ds){
-  const info=progInfo(ds); if(!info) return '';
-  let sub;
-  const k = info.plan && info.plan.sat ? info.plan.sat.kind : '';
-  if(isBusy(ds)) sub='Busy week: Chest + Back, Legs, Shoulders + Arms and two 20-minute easy rows. Everything else is off.';
-  else if(info.phase==='reentry') sub='Easy week back: 2 sets per lift at about 80% of your usual weights, short easy rows. Sleep comes first.';
-  else if(info.phase==='reset') sub='Deload after the cycle: one fewer set per lift, shorter rows. Week 1 starts Monday at your new paces.';
-  else if(k==='test') sub=(info.deload?'Deload + test week: one fewer set per lift so you test fresh. ':'')+(info.week===2 ? 'Saturday’s 20-minute test sets every erg pace.' : 'Saturday’s 20-minute test resets your paces.');
-  else if(info.deload) sub='Deload week: one fewer set per lift and shorter rows.';
-  else if(info.plan.phase==='Base') sub='Base phase: every row easy. The long row is Saturday.';
-  else if(info.plan.phase==='Threshold') sub='Threshold phase: Saturday is the one hard session. Every other row stays easy.';
-  else sub='VO2 max phase: short, very hard Saturday intervals. Every other row stays easy.';
-  return '<div class="panel progstrip"><div class="row spread"><span class="ps-week">'+esc(info.title)+'</span><span class="ps-dates">'+esc(fmtRange(weekMonday(ds)))+'</span></div><div class="ps-sub">'+esc(sub)+'</div></div>';
+function blockStripHTML(){
+  const b=blockFor(todayKey()); if(!b.start) return '';
+  const end=addDays(b.start, 41);
+  const sub = b.week===1 ? 'New block this week: about a third of the accessories switch. Start them conservatively and build.'
+            : b.week===6 ? 'Last week of the block. Good week to take your deload if the app suggests one.'
+            : 'Same exercises all block, so beat last week’s numbers.';
+  return '<div class="panel blockstrip"><div class="row spread"><span class="bs-week">Block '+b.letter+' · week '+b.week+' of 6</span>'+
+    '<span class="bs-dates">'+esc(fmtRange(b.start,end))+'</span></div><div class="bs-sub">'+esc(sub)+'</div></div>';
 }
 function renderToday(){
   const v=$('#view');
   if(state.session){ renderActive(v); return; }
 
-  const today=todayKey();
   const key=templateKeyForToday();
   const tpl=DAYS[key];
   const wd=WEEKDAY_NAMES[isoWeekday(new Date())];
   const isRest = tpl.type==='rest';
-  const ep = isRest ? null : ergPlanFor(key, today);
 
   let head = '<div class="panel dayhead">'+
     '<div class="row spread"><span class="eyebrow">'+wd+' · Today</span>'+
@@ -1230,17 +1026,17 @@ function renderToday(){
     '<div class="h-big">'+esc(tpl.label)+'</div>';
   if(!isRest){
     const lifts=(tpl.exercises||[]).filter(e=>e.sets).length;
-    let n = lifts ? lifts+' exercises' : (ep ? 'Rowing only' : 'cardio + mobility');
-    if(lifts && ep) n += ' + erg';
+    const hasCardio=(tpl.cardio&&tpl.cardio.length)||tpl.finisher;
+    let n = lifts ? lifts+' exercises' : 'cardio + mobility';
+    if(lifts && hasCardio) n += ' + cardio';
     head += '<div class="muted" style="margin-top:6px;font-size:14px">'+n+'</div>';
-    if(ep) head += '<div class="ergline"><b>Erg</b>'+esc(ergTitle(ep))+' · '+esc(ergTargetText(ep))+'</div>';
   } else {
     head += '<div class="muted" style="margin-top:6px;font-size:14px">Recovery matters as much as the work. Pick a session below if you want to train anyway.</div>';
   }
   head+='</div>';
 
   // day picker
-  const order=['d1','d3','d2','d4','d5','sat','row','rest'];
+  const order=['d1','d2','d3','d4','d5','d6','rest'];
   let chips='<div class="changebar">';
   order.forEach(k=>{ chips+='<button class="chip '+(k===key?'on':'')+'" data-pick="'+k+'">'+esc(DAYS[k].label)+'</button>'; });
   chips+='</div>';
@@ -1248,14 +1044,6 @@ function renderToday(){
   let action='';
   if(!isRest){
     action='<div style="margin-top:16px"><button class="btn" data-start="'+key+'">Start '+esc(tpl.label)+'</button></div>';
-  }
-
-  let sleepRow='';
-  if(!isRest && progInfo(today)){
-    const on=isShortSleep(today);
-    sleepRow='<div class="panel sleeprow"><div class="row spread">'+
-      '<div><div style="font-weight:600">Slept under 6 hours?</div><div class="muted" style="font-size:13px">Lifts drop to 2 sets and the row stays easy</div></div>'+
-      '<div class="toggle"><button data-sleep="off" class="'+(on?'':'on')+'">NO</button><button data-sleep="on" class="'+(on?'on':'')+'">YES</button></div></div></div>';
   }
 
   let deloadBanner='';
@@ -1272,7 +1060,7 @@ function renderToday(){
       '<button class="db-btn ghost" data-deload-snooze>Not now</button></div></div>';
   }
 
-  v.innerHTML = progStripHTML(today) + head + deloadBanner + sleepRow + chips + action;
+  v.innerHTML = blockStripHTML() + head + deloadBanner + chips + action;
 }
 
 function countLabel(c){ return c==='sec'?'Secs':c==='steps'?'Steps':'Reps'; }
@@ -1298,14 +1086,10 @@ function renderActive(v){
   let html='<div class="row spread" style="margin-top:6px"><div><span class="eyebrow">'+eyebrow+'</span><div class="h-big">'+esc(s.dayLabel)+'</div></div>'+
     '<button class="btn ghost sm" data-discard>'+(state.editing?'Cancel':'Discard')+'</button></div>';
   if((s.warmup||[]).length){ html+='<div id="warmwrap"></div>'; }
-  const ergFirst = !!(s.erg && s.type==='cardio');     // row first on erg days, lift first on lifting days
-  if(ergFirst){ html+='<div id="ergwrap"></div>'; }
   if(s.exercises.length){
     if(!state.editing) html+='<div class="cue">Stop ~1–2 reps shy of failure on the compounds · pain-free range only</div>';
     html+='<div class="exlist" id="exlist"></div>';
   }
-  if(s.erg && !ergFirst){ html+='<div id="ergwrap"></div>'; }
-  if(!s.erg){ html+='<div style="margin-top:14px"><button class="btn ghost" data-adderg>+ Log a row</button></div>'; }
   if(s.cardio.length){
     html+='<div id="cardiolist" style="margin-top:'+(s.exercises.length?'4px':'14px')+'"></div>';
   }
@@ -1313,7 +1097,7 @@ function renderActive(v){
   html+='<div class="finishwrap"><button class="btn" data-finish>'+(state.editing?'Done':'Finish & Save')+'</button></div>';
   v.innerHTML=html;
 
-  const ww=$('#warmwrap'); if(ww) ww.appendChild(prepBlock('Warm-up · mobility'+(s.warmupVariant?' · '+s.warmupVariant:''), s.warmup, 'warm', true));
+  const ww=$('#warmwrap'); if(ww) ww.appendChild(prepBlock('Warm-up · 3 min', s.warmup, 'warm', true));
   const exWrap=$('#exlist');
   if(exWrap){
     let lastGroup=null;
@@ -1326,7 +1110,6 @@ function renderActive(v){
       exWrap.appendChild(buildExercise(ex,i));
     });
   }
-  const ew=$('#ergwrap'); if(ew) ew.appendChild(buildErgCard(s.erg));
   const cWrap=$('#cardiolist');
   if(cWrap){ s.cardio.forEach((c,i)=> cWrap.appendChild(buildCardio(c,i))); }
   const cl=$('#coolwrap'); if(cl) cl.appendChild(prepBlock('Cool-down · optional', s.cooldown, 'cool', false));
@@ -1407,36 +1190,6 @@ function buildSetRow(ex, exIdx, si){
   return row;
 }
 
-function buildErgCard(g){
-  const node=el('<div class="panel ergcard'+(g.skipped?' skipped':'')+'"></div>');
-  const f=(k,label,ph,mode)=>'<label>'+label+'<input class="fld" data-erg="'+k+'" inputmode="'+mode+'" placeholder="'+ph+'" value="'+esc(g[k]||'')+'"></label>';
-  node.innerHTML=
-    '<div class="ex-head"><div><div class="ex-name">Erg · '+esc(g.title)+'</div><div class="ex-target">'+esc(g.target)+'</div></div>'+
-      '<button class="skipbtn" data-ergskip>'+(g.skipped?'Skipped':'Skip')+'</button></div>'+
-    '<div class="ergbody">'+
-      '<div class="ergtip">'+esc(g.tip)+'</div>'+
-      '<div class="erggrid">'+
-        f('tmin','Minutes',g.max?String(g.max):'0','numeric')+
-        f('tsec','Seconds','00','numeric')+
-        f('meters','Meters','0','numeric')+
-        f('rate','Rate','spm','numeric')+
-        f('hr','Avg HR','bpm','numeric')+
-        '<div class="ergsplit">Avg split<span data-ergsplit>'+fmtSplit(ergSplitSec(g))+'</span></div>'+
-      '</div>'+
-      '<textarea class="note" data-ergnote placeholder="Notes — drag, how it felt, hip, ribs…">'+esc(g.note||'')+'</textarea>'+
-    '</div>';
-  node.querySelectorAll('[data-erg]').forEach(inp=>{
-    inp.addEventListener('input', ()=>{
-      g[inp.getAttribute('data-erg')]=inp.value;
-      const sp=node.querySelector('[data-ergsplit]'); if(sp) sp.textContent=fmtSplit(ergSplitSec(g));
-      saveSessionSoon();
-    });
-  });
-  const nt=node.querySelector('[data-ergnote]');
-  nt.addEventListener('input', ()=>{ g.note=nt.value; saveSessionSoon(); });
-  return node;
-}
-
 function buildCardio(c, i){
   const node=el('<div class="cond panel" data-cardio="'+i+'"></div>');
   node.innerHTML=
@@ -1462,46 +1215,10 @@ function buildCardio(c, i){
 }
 
 /* ===== PLAN ===== */
-function programPanelHTML(){
-  const info=progInfo(todayKey());
-  let html='<div class="sec"><span class="eyebrow">Erg paces</span></div>'+
-    '<div class="panel" style="padding:15px 16px;margin-top:8px">'+
-    '<div style="font-weight:600">20-minute test split</div>'+
-    '<div class="muted" style="font-size:13px;margin-top:3px;line-height:1.45">'+
-      (state.testSplit ? 'From your test'+(state.testDate?' on '+esc(state.testDate):'')+'. Logging a test session updates it automatically.'
-                       : 'Not set yet, so rows run by feel. Your test on Saturday, Nov 7 fills this in when you log it, or type a split here.')+'</div>'+
-    '<div class="paceinput"><input class="fld" id="testsplit" inputmode="text" placeholder="1:55.0" value="'+(state.testSplit?fmtSplit(state.testSplit):'')+'">'+
-    '<button class="btn sm" data-testsave>Save split</button></div>';
-  if(state.testSplit){
-    html+='<div class="restguide" style="margin-top:12px">'+
-      '<div><span>Steady state · rate 18–20</span><b>'+esc(paceRange(18,22))+'</b></div>'+
-      '<div><span>Threshold · rate 24–26</span><b>'+esc(paceRange(3,6))+'</b></div>'+
-      '<div><span>VO2 max · rate 28–32</span><b>'+esc(paceRange(-9,-6))+'</b></div></div>';
-  }
-  html+='</div>';
-  if(!info) return html;
-  const cy=info.cycle||0, startOffset = cy ? (CYCLE_WEEKS+1)*cy : 0;
-  html+='<div class="sec"><span class="eyebrow">26-week cycle</span><span class="muted" style="font-size:12px">'+esc(info.title.replace(/ · .*$/,''))+'</span></div>'+
-    '<div class="panel" style="padding:8px 10px;margin-top:8px">'+
-    '<div class="wkrow hd"><span>Wk</span><span>Starts</span><span>Weekday</span><span>Saturday</span></div>';
-  let lastPhase='';
-  for(let w=1; w<=CYCLE_WEEKS; w++){
-    const p=ERG_WEEKS[w], start=addDays(PROGRAM_START, 7*(startOffset+w-1));
-    if(p.phase!==lastPhase){ html+='<div class="wkphase">'+esc(p.phase)+'</div>'; lastPhase=p.phase; }
-    const d=new Date(start+'T12:00:00');
-    const now = info.phase==='block' && info.week===w;
-    html+='<div class="wkrow'+(now?' now':'')+(p.deload?' dl':'')+'"><span class="wr-n">'+w+'</span>'+
-      '<span class="wr-d">'+mmdd(d)+'</span><span class="wr-s">'+p.tails.join('/')+'</span>'+
-      '<span class="wr-t">'+esc(p.sat.label.replace(/, \d min rest/,''))+(p.deload?' · deload':'')+'</span></div>';
-  }
-  html+='</div><div class="muted" style="font-size:12px;margin:8px 2px 0">Weekday rows are minutes after Mon / Wed / Thu / Fri lifting. Sunday: optional 30–45 min easy row. After week 26: one deload week, then the cycle repeats at your new test paces.</div>';
-  return html;
-}
 function renderPlan(){
   const v=$('#view');
   let html='<div style="margin-top:6px"><span class="eyebrow">Your program</span><div class="h-big">'+esc(PROGRAM_NAME)+'</div>'+
     '<div class="muted" style="margin-top:6px;font-size:14px">'+esc(PROGRAM_BLURB)+'</div></div>';
-  html+=programPanelHTML();
   html+='<div class="panel" style="padding:15px 16px;margin-top:14px">'+
     '<div class="eyebrow" style="color:var(--text)">Rest guide</div>'+
     '<div class="restguide">'+
@@ -1512,11 +1229,18 @@ function renderPlan(){
       '<div><span>Compound sets (arms)</span><b>75–90s</b></div>'+
       '<div><span>Core circuit</span><b>30–45s</b></div>'+
     '</div></div>';
+  const blk=blockFor(todayKey()), curBlock=blk.letter;
+  const nextStart = blk.start ? addDays(blk.start,42) : null;
+  html+='<div class="panel" style="padding:15px 16px;margin-top:14px">'+
+    '<div class="eyebrow" style="color:var(--text)">Block '+curBlock+(blk.start?' · week '+blk.week+' of 6':'')+'</div>'+
+    '<div class="muted" style="font-size:13px;margin-top:6px;line-height:1.45">Compounds stay fixed. Exercises showing another block’s option switch every 6 weeks'+(nextStart?'; Block '+(curBlock==='B'?'A':'B')+' starts '+esc(fmtRange(nextStart,nextStart).split('–')[0]):'')+'.</div>'+
+    '<div class="restguide" style="margin-top:12px">'+
+      '<div><span>Drop set</span><b>last set, −20–30%</b></div>'+
+      '<div><span>Rest-pause</span><b>15 breaths, max reps</b></div></div>'+
+    '<div class="muted" style="font-size:12px;margin-top:8px;line-height:1.45">'+esc(TECH.drop.how)+' '+esc(TECH.restpause.how)+' Skipped on deload weeks.</div></div>';
   html+='<div style="margin-top:16px">';
-  const today=todayKey(), sched=scheduleFor(today), mon=weekMonday(today);
   for(let d=1; d<=7; d++){
-    const key=sched[d]; const tpl=DAYS[key];
-    const ep = ergPlanFor(key, addDays(mon, d-1));
+    const key=SCHEDULE[d]; const tpl=DAYS[key];
     const isRest=tpl.type==='rest';
     html+='<div class="panel planday'+(isRest?' restday':'')+'" data-planday>'+
       '<div class="planday-head" data-toggle>'+
@@ -1528,7 +1252,7 @@ function renderPlan(){
       if(tpl.warmup && WARMUPS[tpl.warmup]){
         const wv=weekVariantIndex(); const letter=['A','B','C'][wv];
         const warr=WARMUPS[tpl.warmup][wv]||WARMUPS[tpl.warmup][0];
-        html+='<div class="grouplbl plan">Warm-up · mobility<span class="gmeth">Version '+letter+' of 3 · rotates weekly</span></div>';
+        html+='<div class="grouplbl plan">Warm-up · about 3 min<span class="gmeth">Same every week, then ramp up on your first lift</span></div>';
         warr.forEach(w=>{ html+='<div class="planex"><span class="pe-name">'+esc(w.name)+'</span><span class="pe-t">'+esc(w.target)+'</span></div>'; });
       }
       let lastGroup=null;
@@ -1538,19 +1262,13 @@ function renderPlan(){
           html+='<div class="grouplbl plan">'+esc(ex.group)+(cap?'<span class="gmeth">'+esc(cap)+'</span>':'')+'</div>';
         }
         lastGroup = ex.group || '';
-        const t = ex.sets? (ex.sets+' × '+ex.reps) : (ex.target||'');
-        if(ex.evenWeek){
-          const ev=ex.evenWeek;
-          html+='<div class="planex"><span class="pe-name">'+esc(ex.name)+' · odd weeks</span><span class="pe-t">'+esc(t)+'</span></div>';
-          html+='<div class="planex"><span class="pe-name">'+esc(ev.name)+' · even weeks</span><span class="pe-t">'+esc(ev.sets+' × '+ev.reps)+'</span></div>';
-        } else {
-          html+='<div class="planex"><span class="pe-name">'+esc(ex.name)+'</span><span class="pe-t">'+esc(t)+'</span></div>';
-        }
+        const cur = exForBlock(ex, curBlock), other = curBlock==='B' ? ex : exForBlock(ex,'B');
+        const t = cur.sets? (cur.sets+' × '+cur.reps) : (cur.target||'');
+        let sub='';
+        if(ex.b) sub+='<span class="pe-alt">Block '+(curBlock==='B'?'A':'B')+': '+esc(other.name)+'</span>';
+        if(ex.tech) sub+='<span class="pe-tech">Last set: '+esc(TECH[ex.tech].label)+'</span>';
+        html+='<div class="planex"><span class="pe-name">'+esc(cur.name)+sub+'</span><span class="pe-t">'+esc(t)+'</span></div>';
       });
-      if(ep){
-        html+='<div class="grouplbl plan">Erg<span class="gmeth">'+esc(ergTip(ep))+'</span></div>';
-        html+='<div class="planex"><span class="pe-name">'+esc(ergTitle(ep))+'</span><span class="pe-t">'+esc(ergTargetText(ep).split(' · ')[0])+'</span></div>';
-      }
       (tpl.cardio||[]).forEach(c=>{ html+='<div class="planex"><span class="pe-name">'+esc(c.name)+'</span><span class="pe-t">'+esc(c.target||'')+'</span></div>'; });
       if(tpl.finisher) html+='<div class="planex"><span class="pe-name">'+esc(tpl.finisher.name)+'</span><span class="pe-t">'+esc(tpl.finisher.target)+'</span></div>';
       if((tpl.cooldown||[]).length){
@@ -1573,10 +1291,6 @@ function renderPlan(){
     '<div><div style="font-weight:600">Deload week</div><div class="muted" style="font-size:13px">Trims new workouts ~40%. You\'ll be reminded every few weeks</div></div>'+
     '<div class="toggle"><button data-deload-set="off" class="'+(state.deload?'':'on')+'">OFF</button>'+
     '<button data-deload-set="on" class="'+(state.deload?'on':'')+'">ON</button></div></div></div>'+
-    '<div class="panel" style="padding:15px 16px;margin-top:8px"><div class="row spread">'+
-    '<div><div style="font-weight:600">Busy week</div><div class="muted" style="font-size:13px">This week only: Chest + Back, Legs, Shoulders + Arms and two 20-minute easy rows</div></div>'+
-    '<div class="toggle"><button data-busy-set="off" class="'+(isBusy()?'':'on')+'">OFF</button>'+
-    '<button data-busy-set="on" class="'+(isBusy()?'on':'')+'">ON</button></div></div></div>'+
     '<div class="panel" style="padding:15px 16px;margin-top:8px">'+
     '<div style="font-weight:600">Back up &amp; restore</div>'+
     '<div class="muted" style="font-size:13px;margin-top:3px;line-height:1.45">Your log lives only on this device. Save a backup file you can keep, then restore it on a new phone, iPad, or computer.</div>'+
@@ -1599,9 +1313,7 @@ function sessionVolume(s){
 function dayGlyph(dayKey){
   const g={ d1:{e:'\u{1F3CB}\uFE0F',a:'CB'}, d4:{e:'\u{1F3CB}\uFE0F',a:'CBP'},
     d2:{e:'\u{1F4AA}',a:'SA'}, d5:{e:'\u{1F4AA}',a:'SAP'},
-    d3:{e:'\u{1F9B5}',a:'LEG'}, d6:{e:'\u{1F6A3}',a:'THR'},
-    ua:{e:'\u{1F3CB}\uFE0F',a:'UA'}, ub:{e:'\u{1F4AA}',a:'UB'}, la:{e:'\u{1F9B5}',a:'LA'}, lb:{e:'\u{1F9B5}',a:'LB'},
-    erg:{e:'\u{1F6A3}',a:'ROW'}, thr:{e:'\u{1F6A3}',a:'THR'}, sat:{e:'\u{1F6A3}',a:'KEY'}, row:{e:'\u{1F6A3}',a:'ROW'} };
+    d3:{e:'\u{1F9B5}',a:'LEG'}, d6:{e:'\u2764\uFE0F',a:'CDO'} };
   return g[dayKey] || {e:'', a:(DAYS[dayKey]&&DAYS[dayKey].abbr)||'?'};
 }
 function mmdd(d){ return String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0'); }
@@ -1618,16 +1330,6 @@ function sessionDetailBody(s){
     }
     if(ex.note && ex.note.trim()) body+='<div class="histnote">'+esc(ex.note.trim())+'</div>';
   });
-  if(ergLogged(s.erg)){
-    const g=s.erg, parts=[];
-    if(Number(g.meters)) parts.push(Number(g.meters).toLocaleString()+' m');
-    if(ergSeconds(g)) parts.push(fmtClock(ergSeconds(g)));
-    if(ergSplitSec(g)) parts.push(fmtSplit(ergSplitSec(g)));
-    if(g.rate) parts.push('r'+g.rate);
-    if(g.hr) parts.push(g.hr+' bpm');
-    body+='<div class="hist-line"><span>Erg · '+esc(g.title)+'</span><span class="mono">'+esc(parts.join(' · '))+'</span></div>';
-    if(g.note && g.note.trim()) body+='<div class="histnote">'+esc(g.note.trim())+'</div>';
-  }
   (s.cardio||[]).forEach(c=>{
     if(!c.dur && !c.dist) return;
     const parts=[]; if(c.dur) parts.push(fmtDur(c.dur)); if(c.dist) parts.push(c.dist+' '+unitDist());
@@ -1645,13 +1347,13 @@ function sessionDetailBody(s){
 }
 
 /* ===== PROGRESS (per-exercise charts) ===== */
-function catForDay(k){ return (k==='d1'||k==='d4')?'Chest & Back':(k==='d2'||k==='d5')?'Shoulders & Arms':(k==='d3')?'Legs':(k==='d6'||k==='erg'||k==='thr'||k==='sat'||k==='row')?'Core & Cardio':(k==='ua'||k==='ub')?'Chest & Back':(k==='la'||k==='lb')?'Legs':'Other'; }
+function catForDay(k){ return (k==='d1'||k==='d4')?'Chest & Back':(k==='d2'||k==='d5')?'Shoulders & Arms':(k==='d3')?'Legs':(k==='d6')?'Core & Cardio':'Other'; }
 function categoryByKeyword(name){
   const n=(name||'').toLowerCase();
   // legs first (specific lower-body terms, incl. "leg curl/press/extension")
   if(/squat|hack|lunge|calf|romanian|\brdl\b|goblet|step-?up|hip thrust|glute|leg press|leg curl|leg extension/.test(n)) return 'Legs';
   // shoulders & arms
-  if(/close-grip|shoulder press|overhead press|\bohp\b|landmine|lateral raise|rear delt|\bdelt\b|shrug|face pull|arnold press|curl|tricep|pushdown|skull|hammer|forearm|wrist|extension/.test(n)) return 'Shoulders & Arms';
+  if(/shoulder press|overhead press|\bohp\b|landmine|lateral raise|rear delt|\bdelt\b|shrug|face pull|arnold press|curl|tricep|pushdown|skull|hammer|forearm|wrist|extension/.test(n)) return 'Shoulders & Arms';
   // chest & back (remaining presses land here; shoulder/leg presses already handled)
   if(/bench|chest|press|fly|flye|row|pull-?up|pull ?up|pulldown|\blat\b|pullover|dip|deadlift/.test(n)) return 'Chest & Back';
   return 'Other';
@@ -1659,38 +1361,16 @@ function categoryByKeyword(name){
 function isCurrentExercise(name){
   for(const k of Object.keys(DAYS)){
     const day=DAYS[k]; if(!day||!day.exercises) continue;
-    for(const ex of day.exercises){ if(ex.name===name || (ex.swap && ex.swap.name===name) || (ex.evenWeek && ex.evenWeek.name===name)) return true; }
+    for(const ex of day.exercises){ if(ex.name===name || (ex.swap && ex.swap.name===name) || (ex.b && ex.b.name===name)) return true; }
   }
   return false;
 }
 function exerciseCategory(name){
-  const kw=categoryByKeyword(name); if(kw!=='Other') return kw;   // upper days now mix muscle groups, so go by the movement
   for(const k of Object.keys(DAYS)){
     const day=DAYS[k]; if(!day||!day.exercises) continue;
-    for(const ex of day.exercises){ if(ex.name===name || (ex.swap && ex.swap.name===name) || (ex.evenWeek && ex.evenWeek.name===name)) return catForDay(k); }
+    for(const ex of day.exercises){ if(ex.name===name || (ex.swap && ex.swap.name===name) || (ex.b && ex.b.name===name)) return catForDay(k); }
   }
   return categoryByKeyword(name);   // old / renamed names still sort sensibly
-}
-function rowingHTML(){
-  const sow=weekMonday(todayKey());
-  const weeks=[]; for(let i=7;i>=0;i--) weeks.push(addDays(sow,-7*i));
-  const m={}; weeks.forEach(w=>m[w]=0);
-  let any=false;
-  state.sessions.forEach(s=>{ if(!ergLogged(s.erg)) return; const wk=weekMonday(s.date); if(wk in m){ m[wk]+=Number(s.erg.meters)||0; any=true; } });
-  if(state.session && !state.editing && ergLogged(state.session.erg)){ const wk=weekMonday(state.session.date); if(wk in m){ m[wk]+=Number(state.session.erg.meters)||0; any=true; } }
-  if(!any && !state.testSplit) return '';
-  const hi=Math.max(1, ...weeks.map(w=>m[w]));
-  let html='<div class="sec"><span class="eyebrow">Rowing</span></div><div class="panel" style="padding:14px 16px;margin-top:8px">'+
-    '<div class="row spread"><div class="ex-name" style="font-size:16px">Meters per week</div>'+
-    '<div class="ex-target">test split '+(state.testSplit?fmtSplit(state.testSplit):'not set')+'</div></div><div class="chart">';
-  weeks.forEach(w=>{
-    const val=m[w], hgt=val?Math.max(6,Math.round(100*val/hi)):0;
-    html+='<div class="cbar-col"><div class="cbar-val">'+(val?(Math.round(val/100)/10)+'k':'')+'</div>'+
-      '<div class="cbar-track"><div class="cbar-fill row" style="height:'+hgt+'%"></div></div>'+
-      '<div class="cbar-date">'+mmdd(new Date(w+'T12:00:00'))+'</div></div>';
-  });
-  html+='</div><div class="chart-note">logged erg meters · by week starting Monday</div></div>';
-  return html;
 }
 function renderCharts(){
   const v=$('#view');
@@ -1714,10 +1394,8 @@ function renderCharts(){
   const names=Object.keys(byEx);
   let html='<div style="margin-top:6px"><span class="eyebrow">Progress</span><div class="h-big">Exercise trends</div>'+
     '<div class="muted" style="margin-top:6px;font-size:14px">Weight (lb) per session over the last 4 weeks. Tap an exercise for its chart.</div></div>';
-  const rowH=rowingHTML();
-  html+=rowH;
   if(!names.length){
-    if(!rowH) html+='<div class="empty"><div class="ic">▲</div>Log some weighted sets or erg meters and your progress charts show up here.</div>';
+    html+='<div class="empty"><div class="ic">▲</div>Log some weighted sets and your per-exercise progress charts show up here.</div>';
     v.innerHTML=html; return;
   }
   // group by category
@@ -1769,8 +1447,6 @@ function renderHistory(){
   const thisWeek=list.filter(s=> new Date(s.date+'T00:00:00') >= sow);
   const totalVol=list.reduce((a,s)=>a+sessionVolume(s),0);
   const weekVol=thisWeek.reduce((a,s)=>a+sessionVolume(s),0);
-  const metersOf=s=> ergLogged(s.erg) ? (Number(s.erg.meters)||0) : 0;
-  const weekM=thisWeek.reduce((a,s)=>a+metersOf(s),0), totalM=list.reduce((a,s)=>a+metersOf(s),0);
 
   // map date -> session (highest-volume if more than one)
   const byDate={};
@@ -1781,11 +1457,9 @@ function renderHistory(){
     (empty?'<div class="muted" style="margin-top:6px;font-size:14px">Log a session from the Today tab, or tap any past day below to add a workout you already did.</div>':'')+'</div>';
   html+='<div class="stats">'+
     '<div class="panel stat"><div class="num accent">'+list.length+'</div><div class="lbl">Total sessions</div></div>'+
-    '<div class="panel stat"><div class="num">'+thisWeek.length+'<span style="font-size:18px;color:var(--muted)">/6</span></div><div class="lbl">This week</div></div>'+
+    '<div class="panel stat"><div class="num">'+thisWeek.length+'<span style="font-size:18px;color:var(--muted)">/5</span></div><div class="lbl">This week</div></div>'+
     '<div class="panel stat"><div class="num">'+Math.round(weekVol).toLocaleString()+'</div><div class="lbl">Volume this week ('+state.unit+')</div></div>'+
     '<div class="panel stat"><div class="num">'+Math.round(totalVol).toLocaleString()+'</div><div class="lbl">Total volume ('+state.unit+')</div></div>'+
-    '<div class="panel stat"><div class="num">'+weekM.toLocaleString()+'</div><div class="lbl">Meters this week</div></div>'+
-    '<div class="panel stat"><div class="num">'+totalM.toLocaleString()+'</div><div class="lbl">Total meters</div></div>'+
   '</div>';
 
   // best lifts
@@ -1863,13 +1537,6 @@ async function finishSession(){
   state.session=null; state.pickedDay=null; state.paused=false;
   state.rest=null; hideRestBar();
   state.tab='history'; render();
-  if(s.erg && s.erg.kind==='test' && ergLogged(s.erg)){
-    const sp=ergSplitSec(s.erg);
-    if(sp>=75 && sp<=240 && ergSeconds(s.erg)>=900){
-      state.testSplit=Math.round(sp*10)/10; state.testDate=s.date; await saveSettings();
-      confirmModal('Test saved: '+fmtSplit(state.testSplit)+' per 500m. Steady rows are now '+paceRange(18,22)+' and threshold '+paceRange(3,6)+'.','OK');
-    }
-  }
 }
 async function discardSession(){
   if(state.editing){
@@ -1912,29 +1579,6 @@ document.addEventListener('click', async (e)=>{
   if(e.target.closest('[data-deload-on]')){ state.deload=true; state.lastDeloadWeek=thisWeekKey(); await saveSettings(); render(); return; }
   if(e.target.closest('[data-deload-off]')){ state.deload=false; await saveSettings(); render(); return; }
   if(e.target.closest('[data-deload-snooze]')){ state.deloadDismissed=thisWeekKey(); await saveSettings(); render(); return; }
-
-  const sl=e.target.closest('[data-sleep]');
-  if(sl){ state.shortSleepDate = sl.getAttribute('data-sleep')==='on' ? todayKey() : null; await saveSettings(); renderToday(); return; }
-  const busy=e.target.closest('[data-busy-set]');
-  if(busy){ state.busyWeek = busy.getAttribute('data-busy-set')==='on' ? weekMonday(todayKey()) : null; state.pickedDay=null; await saveSettings(); render(); return; }
-  if(e.target.closest('[data-testsave]')){
-    const inp=document.getElementById('testsplit'); const raw=inp?inp.value:'';
-    if(!raw.trim()){ state.testSplit=0; state.testDate=null; await saveSettings(); render(); return; }
-    const sec=parseSplit(raw);
-    if(!sec){ confirmModal('Enter the split as minutes and seconds per 500m, like 1:55.0','OK'); return; }
-    state.testSplit=Math.round(sec*10)/10; state.testDate=todayKey(); await saveSettings(); render(); return;
-  }
-  if(e.target.closest('[data-adderg]') && state.session){
-    state.session.erg = makeErg({kind:'steady', min:0, max:0, extra:true});
-    saveSessionSoon(); renderActive($('#view'));
-    const c=document.querySelector('.ergcard'); if(c) c.scrollIntoView({behavior:'smooth', block:'center'});
-    return;
-  }
-  const ergSkip=e.target.closest('[data-ergskip]');
-  if(ergSkip && state.session && state.session.erg){
-    const g=state.session.erg; g.skipped=!g.skipped;
-    ergSkip.closest('.ergcard').replaceWith(buildErgCard(g)); saveSessionSoon(); return;
-  }
 
   if(e.target.closest('[data-export]')){ exportData(); return; }
   if(e.target.closest('[data-restore]')){ const el=document.getElementById('importfile'); if(el) el.click(); return; }
@@ -2051,8 +1695,7 @@ function showFatal(e){
 }
 async function hydrate(){
   try{
-    const settings=await Store.get('settings'); if(settings){ if(settings.unit) state.unit=settings.unit; state.deload=!!settings.deload; state.lastDeloadWeek=settings.lastDeloadWeek||null; state.deloadClockStart=settings.deloadClockStart||null; state.deloadDismissed=settings.deloadDismissed||null; state.testSplit=Number(settings.testSplit)||0; state.testDate=settings.testDate||null; state.busyWeek=settings.busyWeek||null; state.shortSleepDate=settings.shortSleepDate||null; }
-    { const pi=progInfo(todayKey()); if(pi && pi.deload && state.lastDeloadWeek!==thisWeekKey()){ state.lastDeloadWeek=thisWeekKey(); saveSettings(); } }
+    const settings=await Store.get('settings'); if(settings){ if(settings.unit) state.unit=settings.unit; state.deload=!!settings.deload; state.lastDeloadWeek=settings.lastDeloadWeek||null; state.deloadClockStart=settings.deloadClockStart||null; state.deloadDismissed=settings.deloadDismissed||null; }
     if(!state.deloadClockStart){ state.deloadClockStart=thisWeekKey(); saveSettings(); }   // start counting from now, not past weeks
     const keys=await Store.list('session:');
     const loaded=[];
